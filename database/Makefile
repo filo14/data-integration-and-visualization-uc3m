@@ -32,7 +32,7 @@ down:
 schema: up
 	@echo "--- Applying schema from $(SCHEMA_FILE) ---"
 	# 1. Wait until the database is ready to accept connections (important after 'up')
-	docker compose exec -T $(SERVICE) sh -c "until pg_isready -U $(DB_USER) -d $(DB_NAME); do echo 'Waiting for DB...'; sleep 1; done"
+	docker compose exec -T $(SERVICE) sh -c "until pg_isready -U $(DB_USER) -d $(DB_NAME); do echo 'Waiting for DB...'; sleep 3; done"
 	# 2. Execute the schema file using the psql client inside the container
 	docker compose exec -T $(SERVICE) psql -U $(DB_USER) -d $(DB_NAME) -f /docker-entrypoint-initdb.d/schema.sql
 	@echo "Schema application complete."
