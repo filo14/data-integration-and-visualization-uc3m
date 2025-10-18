@@ -1,5 +1,6 @@
 import time, psycopg2
 
+# Connection parameters defined in ./datbase/compose.yaml
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "mydb"
@@ -57,7 +58,6 @@ if __name__ == "__main__":
             load_data(db_conn, final_data)
             
         except Exception as e:
-            # Catch errors and clean up (e.g., rollback database changes)
             print(f"Pipeline failed: {e}")
         finally:
             db_conn.close()
