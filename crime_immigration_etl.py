@@ -1,6 +1,6 @@
 import time, psycopg2
 
-# Connection parameters defined in ./datbase/compose.yaml
+# Connection parameters defined in ./database/compose.yaml
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "mydb"
