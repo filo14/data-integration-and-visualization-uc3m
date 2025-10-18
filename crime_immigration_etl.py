@@ -35,6 +35,7 @@ def get_db_connection(retries=5, delay=3):
     return None
 
 def extract_data():
+    # with openpyxl and pandas?
     pass
 
 def transform_data(crime_df, immigration_df):
