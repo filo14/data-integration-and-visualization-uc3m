@@ -1,4 +1,4 @@
-import time, psycopg2
+import time, psycopg2, requests, pandas
 
 # Connection parameters defined in ./database/compose.yaml
 DB_HOST = "localhost"
@@ -35,13 +35,61 @@ def get_db_connection(retries=5, delay=3):
     return None
 
 def extract_data():
-    # with openpyxl and pandas?
+    def extract_countries():
+        countries_response = requests.get('http://api.worldbank.org/v2/country?format=json&per_page=300')
+
+        countries_response.raise_for_status()
+        countries_data = countries_response.json()
+
+        # all country ids whose region.value is "Aggregates"
+        aggregate_codes = [c.get('id') for c in countries_data[1] if c.get('region', {}).get('value') == 'Aggregates']
+
+        population_indicator = 'SP.POP.TOTL'
+        year = 2022
+        url = f'http://api.worldbank.org/v2/country/all/indicator/{population_indicator}?date={year}&format=json&per_page=2000'
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status() # Raise an HTTPError for bad responses
+            data = response.json()
+
+            # The first element of the response is metadata, the second is the data
+            if data and len(data) > 1:
+                population_data = data[1]
+            else:
+                population_data = []
+                print("No data found for the specified year and indicator.")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching data from World Bank API: {e}")
+            population_data = []
+
+        # Convert to DataFrame
+        population_df = pandas.DataFrame(population_data)
+        population_df = population_df[
+            ~population_df['countryiso3code'].isin(aggregate_codes)
+        ].copy()
+        return population_df
+
     pass
 
-def transform_data(crime_df, immigration_df):
+def transform_data(population_df, crime_df, immigration_df):
+    def transform_countries():
+        # iso3 code for filtering
+        population_df['ISO3_Code'] = population_df['countryiso3code']
+
+        # extract country name and population value
+        population_df['Country'] = population_df['country'].apply(lambda x: x['value'])
+        population_df['Population'] = pandas.to_numeric(population_df['value'], errors='coerce')
+
+        # drop rows where conversion to numeric failed or population is None
+        population_df.dropna(subset=['Population'], inplace=True)
+
+        population_df = population_df[['ISO3_Code', 'Country', 'Population']]
+
     pass
 
-def load_data(conn, final_df):
+def load_data(conn):
     pass
 
 if __name__ == "__main__":
@@ -50,10 +98,10 @@ if __name__ == "__main__":
     if db_conn:
         try:
             # 1. E
-            raw_crime, raw_immig = extract_data()
+            raw_population, raw_crime, raw_immig = extract_data()
             
             # 2. T
-            final_data = transform_data(raw_crime, raw_immig)
+            final_data = transform_data(raw_population, raw_crime, raw_immig)
             
             # 3. L
             load_data(db_conn, final_data)
