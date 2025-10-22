@@ -1,36 +1,33 @@
-# DATA LICENSE AND ATTRIBUTION
+DATA LICENSE AND ATTRIBUTION
 
 This file documents the licensing terms and required attribution for all third-party data sources used within this 'Crime and Immigration Statistics' project.
 
-## Data Source 1: UN Nations Office on Drugs and Crime - Persons convicted
+Data Source 1: UN Nations Office on Drugs and Crime - Persons convicted
 
-**Purpose in Project:** used for number of persons convicted per european country
+Purpose in Project: used for number of persons convicted per european country
 
-**Source URL:** https://dataunodc.un.org/dp-cjs-persons-convicted
+Source URL: https://dataunodc.un.org/dp-cjs-persons-convicted
 
-**License Type:** Terms and conditions of use of United Nations websites
+License Type: Terms and conditions of use of United Nations websites
 
-**Full License Text:**
-https://www.un.org/en/about-us/terms-of-use
+Full License Text: https://www.un.org/en/about-us/terms-of-use
 
-## Data Source 2: Eurostat - Migrant Proportion of Population
+Data Source 2: Eurostat - Migrant Proportion of Population
 
-**Purpose in Project:** used for proportion of migrants per european country
+Purpose in Project: used for proportion of migrants per european country
 
-**Source URL:** https://ec.europa.eu/eurostat/web/migration-asylum/international-migration-citizenship/database
+Source URL: https://ec.europa.eu/eurostat/web/migration-asylum/international-migration-citizenship/database
 
-**License Type:**  Creative Commons Attribution 4.0 International (CC BY 4.0) licence
+License Type:  Creative Commons Attribution 4.0 International (CC BY 4.0) licence
 
-**Full License Text:**
-https://creativecommons.org/licenses/by/4.0/
+Full License Text: https://creativecommons.org/licenses/by/4.0/
 
-## Data Source 3: World Bank Indicators API - Population of Countries
+Data Source 3: World Bank Indicators API - Population of Countries
 
-**Purpose in Project:** used for population per european country
+Purpose in Project: used for population per european country
 
-**Source URL:** https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation
+Source URL: https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation
 
-**License Type:**  Terms and conditions of use of World Bank websites
+License Type:  Terms and conditions of use of World Bank websites
 
-**Full License Text:**
-https://www.worldbank.org/en/about/legal/Permissions
+Full License Text: https://www.worldbank.org/en/about/legal/Permissions
