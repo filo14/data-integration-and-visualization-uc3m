@@ -39,7 +39,8 @@ CREATE TABLE country (
     country_iso3_id VARCHAR(3) PRIMARY KEY NOT NULL,
     country_name VARCHAR(255) NOT NULL,
     region VARCHAR(255) NOT NULL,
-    subregion VARCHAR(255) NOT NULL
+    subregion VARCHAR(255) NOT NULL,
+    population NUMERIC NOT NULL
 );
 
 -- Table: Year
