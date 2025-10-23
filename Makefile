@@ -11,3 +11,11 @@ db:
 etl: venv db
 	@echo "--- Running ETL ---"
 	.venv/bin/python crime_immigration_etl.py
+
+delete: 
+	@echo "--- Deleting & resetting database ---"
+	cd ./database && make down
+
+backup:
+	@echo "--- Creating database backup ---"
+	cd ./database && make backup
