@@ -27,8 +27,7 @@ CREATE TABLE country (
 
 -- Table: Year
 CREATE TABLE year (
-    year_id SERIAL PRIMARY KEY,
-    year INT NOT NULL UNIQUE
+    year_id INT PRIMARY KEY NOT NULL UNIQUE
 );
 
 -- ===================================
@@ -85,7 +84,7 @@ CREATE TABLE crime (
 -- Table: Population
 CREATE TABLE population (
     population_id SERIAL PRIMARY KEY,
-    population NUMERIC(10, 4) NOT NULL, -- Population
+    population BIGINT NOT NULL, -- Population
 
     -- Foreign Key 1: Link to Country
     country_iso3_id VARCHAR(3) NOT NULL,
@@ -109,7 +108,7 @@ CREATE TABLE population (
 -- 4. CREATE BASIC FACTS
 -- ===================================
 
-INSERT INTO year (year)
+INSERT INTO year (year_id)
 VALUES
 ('2019'),
 ('2020'),

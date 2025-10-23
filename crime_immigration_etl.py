@@ -1,4 +1,5 @@
 import time, psycopg2, requests, pandas
+from psycopg2.extras import execute_values
 
 # Connection parameters defined in ./database/compose.yaml
 DB_HOST = "localhost"
@@ -6,6 +7,9 @@ DB_PORT = "5432"
 DB_NAME = "mydb"
 DB_USER = "myuser"
 DB_PASSWORD = "mypassword"
+
+# Years of which we take data
+YEARS = range(2020, 2025, 1)
 
 def get_db_connection(retries=5, delay=3):
     print(f"Attempting to connect to PostgreSQL at {DB_HOST}:{DB_PORT}/{DB_NAME}...")
@@ -35,7 +39,7 @@ def get_db_connection(retries=5, delay=3):
     return None
 
 def extract_data():
-    def extract_countries():
+    def extract_population():
         countries_response = requests.get('http://api.worldbank.org/v2/country?format=json&per_page=300')
 
         countries_response.raise_for_status()
@@ -45,52 +49,129 @@ def extract_data():
         aggregate_codes = [c.get('id') for c in countries_data[1] if c.get('region', {}).get('value') == 'Aggregates']
 
         population_indicator = 'SP.POP.TOTL'
-        year = 2022
-        url = f'http://api.worldbank.org/v2/country/all/indicator/{population_indicator}?date={year}&format=json&per_page=2000'
+        all_population_data = []
 
-        try:
-            response = requests.get(url)
-            response.raise_for_status() # Raise an HTTPError for bad responses
-            data = response.json()
+        for year in YEARS:
+            url = f'http://api.worldbank.org/v2/country/all/indicator/{population_indicator}?date={year}&format=json&per_page=2000'
 
-            # The first element of the response is metadata, the second is the data
-            if data and len(data) > 1:
-                population_data = data[1]
-            else:
-                population_data = []
-                print("No data found for the specified year and indicator.")
+            try:
+                response = requests.get(url)
+                response.raise_for_status() # Raise an HTTPError for bad responses
+                data = response.json()
 
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching data from World Bank API: {e}")
-            population_data = []
+                # The first element of the response is metadata, the second is the data
+                if data and len(data) > 1 and data[1] is not None:
+                    # Append the year to each dictionary item before collecting
+                    year_data = data[1]
+                    for item in year_data:
+                        # Inject the year into the raw dictionary to differentiate data by year
+                        item['year_id'] = year 
+                    
+                    all_population_data.extend(year_data)
+                    print(f"Successfully fetched raw data for year {year}.")
+                else:
+                    print(f"No data found for year {year}.")
+
+            except requests.exceptions.RequestException as e:
+                print(f"Error fetching data from World Bank API: {e}")
+                all_population_data = []
+
+        return all_population_data, aggregate_codes
+
+    def extract_crime():
+        pass
+
+    def extract_immig():
+        pass
+
+    return extract_population(), extract_crime(), extract_immig()
+
+def transform_data(raw_population_tuple, raw_crime, raw_immig):
+    def transform_country_and_population(raw_population_tuple):
+        raw_population, aggregate_codes = raw_population_tuple
 
         # Convert to DataFrame
-        population_df = pandas.DataFrame(population_data)
+        population_df = pandas.DataFrame(raw_population)
         population_df = population_df[
             ~population_df['countryiso3code'].isin(aggregate_codes)
         ].copy()
-        return population_df
+    
+        # Rename ISO3 field to match database
+        population_df['country_iso3_id'] = population_df['countryiso3code']
 
-    pass
+        # Filter invalid ISO3
+        population_df = population_df[
+            (population_df['country_iso3_id'].str.len() > 0) & 
+            (population_df['country_iso3_id'].notna())
+        ]
 
-def transform_data(population_df, crime_df, immigration_df):
-    def transform_countries():
-        # iso3 code for filtering
-        population_df['ISO3_Code'] = population_df['countryiso3code']
+        # Extract country name from subfield
+        population_df['country_name'] = population_df['country'].apply(lambda x: x['value'])
 
-        # extract country name and population value
-        population_df['Country'] = population_df['country'].apply(lambda x: x['value'])
-        population_df['Population'] = pandas.to_numeric(population_df['value'], errors='coerce')
+        # Convert population to numeric
+        population_df['population'] = pandas.to_numeric(population_df['value'], errors='coerce')
 
-        # drop rows where conversion to numeric failed or population is None
-        population_df.dropna(subset=['Population'], inplace=True)
+        # Drop rows where conversion to numeric failed or population is None
+        population_df.dropna(subset=['population'], inplace=True)
 
-        population_df = population_df[['ISO3_Code', 'Country', 'Population']]
+        # Create database matching dataframes for country and population
+        country_df = population_df[['country_iso3_id', 'country_name']].drop_duplicates(subset=['country_iso3_id']).copy()
+        population_df = population_df[['population', 'country_iso3_id', 'year_id']].copy()
 
-    pass
+        return country_df, population_df
+    
+    def transform_crime(raw_crime):
+        pass
 
-def load_data(conn):
-    pass
+    def transform_immig(raw_immig):
+        pass
+
+    country_df, population_df = transform_country_and_population(raw_population_tuple)
+    return country_df, population_df, transform_crime(raw_crime), transform_immig(raw_immig)
+
+def load_data(conn, t_country, t_population, t_crime, t_immig):
+    def insert_data(conn, table_name, columns, data_to_insert, conflict_rule=""):
+        cur = conn.cursor()
+        try:
+            insert_query = f"INSERT INTO {table_name} {columns} VALUES %s {conflict_rule}"
+            execute_values(
+                cur,
+                insert_query,
+                data_to_insert,
+                page_size=1000
+            )
+            conn.commit()
+        except (Exception, psycopg2.Error) as error:
+            print(f"Error during database operation: {error}")
+            if conn:
+                conn.rollback()
+                
+        finally:
+            if conn:
+                cur.close()
+
+    def load_country(conn, t_country):
+        data_to_insert = [tuple(row) for row in t_country.to_numpy()]
+        conflict_rule = "ON CONFLICT (country_iso3_id) DO NOTHING"
+        insert_data(conn, "country", "(country_iso3_id, country_name)", data_to_insert, conflict_rule)
+
+    def load_population(conn, t_population):
+        data_to_insert = [tuple(row) for row in t_population.to_numpy()]
+        conflict_rule = "ON CONFLICT (country_iso3_id, year_id) DO NOTHING"
+        insert_data(conn, "population","(population, country_iso3_id, year_id)", data_to_insert, conflict_rule)
+
+    def load_crime(conn, t_crime):
+        pass
+
+    def load_immig(conn, t_immig):
+        pass
+
+    load_country(conn, t_country)
+    load_population(conn, t_population)
+    load_crime(conn, t_crime)
+    load_immig(conn, t_immig)
+
+    conn.close()
 
 if __name__ == "__main__":
     db_conn = get_db_connection()
@@ -98,13 +179,13 @@ if __name__ == "__main__":
     if db_conn:
         try:
             # 1. E
-            raw_population, raw_crime, raw_immig = extract_data()
+            raw_population_tuple, raw_crime, raw_immig = extract_data()
             
             # 2. T
-            final_data = transform_data(raw_population, raw_crime, raw_immig)
+            t_country, t_population, t_crime, t_immig = transform_data(raw_population_tuple, raw_crime, raw_immig)
             
             # 3. L
-            load_data(db_conn, final_data)
+            load_data(db_conn, t_country, t_population, t_crime, t_immig)
             
         except Exception as e:
             print(f"Pipeline failed: {e}")
