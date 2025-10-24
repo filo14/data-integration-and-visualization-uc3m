@@ -37,7 +37,7 @@ CREATE TABLE year (
 -- Table: Immigration
 CREATE TABLE immigration (
     immigration_id SERIAL PRIMARY KEY,
-    immigration_per_100000 NUMERIC(10, 4) NOT NULL, -- Rate of immigration
+    immigration_per_100000 NUMERIC(10, 2) NOT NULL, -- Rate of immigration
 
     -- Foreign Key 1: Link to Country
     country_iso3_id VARCHAR(3) NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE immigration (
 -- Table: Crime
 CREATE TABLE crime (
     crime_id SERIAL PRIMARY KEY,
-    convicts_per_100000 NUMERIC(10, 4) NOT NULL, -- Rate of convicts
+    convicts_per_100000 NUMERIC(10, 2) NOT NULL, -- Rate of convicts
 
     -- Foreign Key 1: Link to Country
     country_iso3_id VARCHAR(3) NOT NULL,

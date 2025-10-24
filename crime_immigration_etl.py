@@ -1,4 +1,4 @@
-import time, psycopg2, requests, pandas
+import time, psycopg2, requests, pandas, country_converter
 from psycopg2.extras import execute_values
 
 # Connection parameters defined in ./database/compose.yaml
@@ -9,7 +9,7 @@ DB_USER = "myuser"
 DB_PASSWORD = "mypassword"
 
 # Years of which we take data
-YEARS = range(2020, 2025, 1)
+YEARS = range(2020, 2024, 1)
 
 def get_db_connection(retries=5, delay=3):
     print(f"Attempting to connect to PostgreSQL at {DB_HOST}:{DB_PORT}/{DB_NAME}...")
@@ -68,7 +68,7 @@ def extract_data():
                         item['year_id'] = year 
                     
                     all_population_data.extend(year_data)
-                    print(f"Successfully fetched raw data for year {year}.")
+                    print(f"Successfully fetched population data for year {year}.")
                 else:
                     print(f"No data found for year {year}.")
 
@@ -82,7 +82,10 @@ def extract_data():
         pass
 
     def extract_immig():
-        pass
+        file_path = './data-sources/tps00176_linear_2_0.csv'
+
+        df = pandas.read_csv(file_path)
+        return df
 
     return extract_population(), extract_crime(), extract_immig()
 
@@ -127,6 +130,8 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         country_df = population_df[['country_iso3_id', 'country_name']].drop_duplicates(subset=['country_iso3_id']).copy()
         population_df = population_df[['population', 'country_iso3_id', 'year_id']].copy()
 
+        print(f"Successfully transformed country and population data.")
+
         return country_df, population_df
     
     def transform_crime(raw_crime, transformed_population_df):
@@ -157,36 +162,51 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
 
         return crime_df[['country_iso3_id', 'year_id', 'convicts_per_100000']]
 
-    def transform_immig(raw_immig, transformed_population_df):
-        # Convert to DataFrame
-        immig_df = pandas.DataFrame(raw_immig)
+    def transform_immig(raw_immig, population_df):
+        immig_df = raw_immig[['geo', 'TIME_PERIOD', 'OBS_VALUE']]
 
-        # Rename ISO3 field to match database
-        immig_df['country_iso3_id'] = immig_df['countryiso3code']
+        cc = country_converter.CountryConverter()
 
-        # Convert crime to numeric
-        immig_df['immigrants'] = pandas.to_numeric(immig_df['value'], errors='coerce')
-        immig_df = immig_df[immig_df['immigrants'] >= 0]
-        immig_df = immig_df[immig_df['immigrants'].notna()]
-
-        # Drop rows where conversion to numeric failed or crime is None
-        immig_df.dropna(subset=['immigrants'], inplace=True)
+        immig_df = immig_df[
+            (immig_df['geo'].str.len() == 2) & 
+            (immig_df['geo'].notna())
+        ]
+        immig_df['country_iso3_id'] = cc.convert(
+            names=immig_df['geo'], 
+            to='ISO3'
+        )
+        immig_df['year_id'] = immig_df['TIME_PERIOD'].astype(int)
+        immig_df['immigration_total'] = pandas.to_numeric(
+            immig_df['OBS_VALUE'].replace(':', 0),
+            errors='coerce'
+        )
+        immig_df = immig_df.dropna(subset=['immigration_total'])
 
         # Merge and keep only crimes with countries that exist in transformed population
         immig_df = immig_df.merge(
-            transformed_population_df,
+            population_df,
             on=['country_iso3_id', 'year_id'],
             how='inner',
             validate='many_to_one'
         )
 
-        # Normalize crime per 100.000 inhabitants
-        immig_df['immigration_per_100000'] = (immig_df['immigrants'] / immig_df['population']) * 100000
+        # Normalize immigrants per 100.000 inhabitants
+        immig_df['immigration_per_100000'] = (immig_df['immigration_total'] / immig_df['population']) * 100000
 
-        return immig_df[['country_iso3_id', 'year_id', 'immigration_per_100000']]
+        # Apply the rounding to two decimal places
+        immig_df['immigration_per_100000'] = (
+            immig_df['immigration_per_100000']
+            .round(2) 
+        )
+
+        immig_df = immig_df[[ 'immigration_per_100000', 'country_iso3_id', 'year_id']]
+
+        print(f"Successfully transformed immigration data.")
+
+        return immig_df
 
     country_df, population_df = transform_country_and_population(raw_population_tuple)
-    return country_df, population_df, transform_crime(raw_crime, population_df), transform_immig(raw_immig, population_df)
+    return country_df, population_df, None, transform_immig(raw_immig, population_df)
 
 def load_data(conn, t_country, t_population, t_crime, t_immig):
     def insert_data(conn, table_name, columns, data_to_insert, conflict_rule=""):
@@ -200,6 +220,7 @@ def load_data(conn, t_country, t_population, t_crime, t_immig):
                 page_size=1000
             )
             conn.commit()
+            print(f"Successfully inserted data into table {table_name}.")
         except (Exception, psycopg2.Error) as error:
             print(f"Error during database operation: {error}")
             if conn:
@@ -223,7 +244,9 @@ def load_data(conn, t_country, t_population, t_crime, t_immig):
         pass
 
     def load_immig(conn, t_immig):
-        pass
+        data_to_insert = [tuple(row) for row in t_immig.to_numpy()]
+        conflict_rule = "ON CONFLICT (country_iso3_id, year_id) DO NOTHING"
+        insert_data(conn, "immigration", "(immigration_per_100000, country_iso3_id, year_id)", data_to_insert, conflict_rule)
 
     load_country(conn, t_country)
     load_population(conn, t_population)
@@ -245,6 +268,8 @@ if __name__ == "__main__":
             
             # 3. L
             load_data(db_conn, t_country, t_population, t_crime, t_immig)
+
+            print("--- Finished ETL ---")
             
         except Exception as e:
             print(f"Pipeline failed: {e}")
