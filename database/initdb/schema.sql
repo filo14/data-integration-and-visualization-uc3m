@@ -110,7 +110,8 @@ CREATE TABLE population (
 
 INSERT INTO year (year_id)
 VALUES
+('2018'),
+('2019'),
 ('2020'),
 ('2021'),
-('2022'),
-('2023');
+('2022');
