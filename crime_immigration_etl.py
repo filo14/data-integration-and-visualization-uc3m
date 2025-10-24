@@ -1,5 +1,6 @@
 import time, psycopg2, requests, pandas, country_converter
 from psycopg2.extras import execute_values
+import pycountry
 
 # Connection parameters defined in ./database/compose.yaml
 DB_HOST = "localhost"
@@ -10,6 +11,42 @@ DB_PASSWORD = "mypassword"
 
 # Years of which we take data
 YEARS = range(2020, 2024, 1)
+
+def map_countries():
+    COUNTRIES_MAP = {}
+    for country in pycountry.countries:
+        normalised_name = country.name
+        COUNTRIES_MAP[country.name.lower()] = normalised_name
+        COUNTRIES_MAP[country.alpha_2.lower()] = normalised_name
+        COUNTRIES_MAP[country.alpha_3.lower()] = normalised_name
+        if hasattr(country, 'official_name'):
+            COUNTRIES_MAP[country.official_name.lower()] = normalised_name
+    return COUNTRIES_MAP
+
+COUNTRIES_MAP = map_countries()
+
+def normalise_country(country):
+    if not country:
+        return None
+    return COUNTRIES_MAP.get(country.strip().lower(), country)
+
+def map_countries():
+    COUNTRIES_MAP = {}
+    for country in pycountry.countries:
+        normalised_name = country.name
+        COUNTRIES_MAP[country.name.lower()] = normalised_name
+        COUNTRIES_MAP[country.alpha_2.lower()] = normalised_name
+        COUNTRIES_MAP[country.alpha_3.lower()] = normalised_name
+        if hasattr(country, 'official_name'):
+            COUNTRIES_MAP[country.official_name.lower()] = normalised_name
+    return COUNTRIES_MAP
+
+COUNTRIES_MAP = map_countries()
+
+def normalise_country(country):
+    if not country:
+        return None
+    return COUNTRIES_MAP.get(country.strip().lower(), country)
 
 def get_db_connection(retries=5, delay=3):
     print(f"Attempting to connect to PostgreSQL at {DB_HOST}:{DB_PORT}/{DB_NAME}...")
@@ -108,8 +145,14 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
             (population_df['country_iso3_id'].notna())
         ]
 
-        # Extract country name from subfield and convert to the lowercase
-        population_df['country_name'] = population_df['country'].apply(lambda x: x['value'].strip().lower())
+        # Extract country name from subfield and convert to the lowercase (where country exists)
+        population_df = population_df[population_df['country'].notna()]
+        population_df = population_df[population_df['country'].apply(lambda x: x.get('value') is not None)]
+
+        # Create country_name from normalised country
+        population_df['country_name'] = population_df['country'].apply(
+            lambda x: normalise_country(x['value']).strip().lower()
+        )
 
         # Convert population to numeric (normalise numbers)
         population_df['population'] = pandas.to_numeric(population_df['value'], errors='coerce')
@@ -158,7 +201,7 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         )
 
         # Normalize crime per 100.000 inhabitants
-        crime_df['convicts_per_100000'] = (crime_df['convicts'] / crime_df['population']) * 100000
+        crime_df['convicts_per_100000'] = ((crime_df['convicts'] / crime_df['population']) * 100000).round(1)
 
         return crime_df[['country_iso3_id', 'year_id', 'convicts_per_100000']]
 
@@ -182,7 +225,7 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         )
         immig_df = immig_df.dropna(subset=['immigration_total'])
 
-        # Merge and keep only crimes with countries that exist in transformed population
+        # Merge and keep only immigrants with countries that exist in transformed population
         immig_df = immig_df.merge(
             population_df,
             on=['country_iso3_id', 'year_id'],
