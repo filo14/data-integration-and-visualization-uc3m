@@ -113,7 +113,9 @@ def extract_data():
                 print(f"Error fetching data from World Bank API: {e}")
                 all_population_data = []
 
-        return all_population_data, aggregate_codes
+        raw_population_df = pandas.DataFrame(all_population_data)
+
+        return raw_population_df, aggregate_codes
 
     def extract_crime():
         pass
@@ -128,10 +130,8 @@ def extract_data():
 
 def transform_data(raw_population_tuple, raw_crime, raw_immig):
     def transform_country_and_population(raw_population_tuple):
-        raw_population, aggregate_codes = raw_population_tuple
+        population_df, aggregate_codes = raw_population_tuple
 
-        # Convert to DataFrame
-        population_df = pandas.DataFrame(raw_population)
         population_df = population_df[
             ~population_df['countryiso3code'].isin(aggregate_codes)
         ].copy()
