@@ -50,7 +50,7 @@ def normalise_country(country):
 
 def get_db_connection(retries=5, delay=3):
     print(f"Attempting to connect to PostgreSQL at {DB_HOST}:{DB_PORT}/{DB_NAME}...")
-    
+
     conn = None
     for attempt in range(retries):
         try:
@@ -102,8 +102,8 @@ def extract_data():
                     year_data = data[1]
                     for item in year_data:
                         # Inject the year into the raw dictionary to differentiate data by year
-                        item['year_id'] = year 
-                    
+                        item['year_id'] = year
+
                     all_population_data.extend(year_data)
                     print(f"Successfully fetched population data for year {year}.")
                 else:
@@ -118,7 +118,12 @@ def extract_data():
         return raw_population_df, aggregate_codes
 
     def extract_crime():
-        pass
+        # Define the path to your Excel file
+        file_path = './Project 1/data-integration-and-visualization-uc3m/data-sources/un-persons-convicted.xlsx'
+
+        # Read the Excel file, specifying that the header is in row 3 (index 2)
+        crime_df = pandas.read_excel(file_path, header=2)
+        return crime_df
 
     def extract_immig():
         file_path = './data-sources/tps00176_linear_2_0.csv'
@@ -135,15 +140,15 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         population_df = population_df[
             ~population_df['countryiso3code'].isin(aggregate_codes)
         ].copy()
-    
+
         # Rename ISO3 field to match database
         population_df['country_iso3_id'] = population_df['countryiso3code']
 
         # Filter invalid ISO3
         population_df = population_df[
-            (population_df['country_iso3_id'].str.len() > 0) & 
+            (population_df['country_iso3_id'].str.len() > 0) &
             (population_df['country_iso3_id'].notna())
-        ]
+            ]
 
         # Extract country name from subfield and convert to the lowercase (where country exists)
         population_df = population_df[population_df['country'].notna()]
@@ -170,14 +175,16 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         population_df = population_df[population_df['year_id'] >= 2020]
 
         # Create database matching dataframes for country and population
-        country_df = population_df[['country_iso3_id', 'country_name']].drop_duplicates(subset=['country_iso3_id']).copy()
+        country_df = population_df[['country_iso3_id', 'country_name']].drop_duplicates(
+            subset=['country_iso3_id']).copy()
         population_df = population_df[['population', 'country_iso3_id', 'year_id']].copy()
 
         print(f"Successfully transformed country and population data.")
 
         return country_df, population_df
-    
-    def transform_crime(raw_crime, transformed_population_df):
+
+    def transform_crime(crime_df):
+        """
         # Convert to DataFrame
         crime_df = pandas.DataFrame(raw_crime)
 
@@ -204,6 +211,35 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         crime_df['convicts_per_100000'] = ((crime_df['convicts'] / crime_df['population']) * 100000).round(1)
 
         return crime_df[['country_iso3_id', 'year_id', 'convicts_per_100000']]
+        """
+        crime_df['VALUE'] = pandas.to_numeric(crime_df['VALUE'], errors='coerce')
+        crime_df = crime_df[crime_df['VALUE'] >= 0]
+        crime_df = crime_df[crime_df['VALUE'].notna()]
+        # Drop rows where conversion to numeric failed or crime is None
+        crime_df.dropna(subset=['VALUE'], inplace=True)
+
+        crime_df = crime_df.rename(columns={'Iso3_code': 'country_iso3_id',
+                                            'Country': 'country_name',
+                                            'Year': 'year_id'})
+
+        category_total = (crime_df['Category'] == 'Total')
+        sex_total = (crime_df['Sex'] == 'Total')
+        people_convicted = (crime_df['Indicator'] == 'Persons convicted')
+        all_age = (crime_df['Age'] == 'Total')
+        total_amount = (crime_df['Unit of measurement'] == 'Rate per 100,000 population')
+        from_2020 = (crime_df['year_id'] >= 2020)
+        region_europe = (crime_df['Region'] == 'Europe')
+
+        crime_df = crime_df[category_total & sex_total & people_convicted & all_age
+                            & total_amount & from_2020 & region_europe]
+
+        # so we have standard rounding of 2 decimal
+        crime_df['VALUE'] = crime_df['VALUE'].round(2)
+
+        # as we already have only Rate per 100,000 population and Persons convicted
+        # we would rename the field
+        crime_df = crime_df.rename(columns={'VALUE': 'convicts_per_100000'})
+        return crime_df[['country_iso3_id', 'Year', 'convicts_per_100000']]
 
     def transform_immig(raw_immig, population_df):
         immig_df = raw_immig[['geo', 'TIME_PERIOD', 'OBS_VALUE']]
@@ -211,11 +247,11 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         cc = country_converter.CountryConverter()
 
         immig_df = immig_df[
-            (immig_df['geo'].str.len() == 2) & 
+            (immig_df['geo'].str.len() == 2) &
             (immig_df['geo'].notna())
         ]
         immig_df['country_iso3_id'] = cc.convert(
-            names=immig_df['geo'], 
+            names=immig_df['geo'],
             to='ISO3'
         )
         immig_df['year_id'] = immig_df['TIME_PERIOD'].astype(int)
@@ -239,7 +275,7 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
         # Apply the rounding to two decimal places
         immig_df['immigration_per_100000'] = (
             immig_df['immigration_per_100000']
-            .round(2) 
+            .round(2)
         )
 
         immig_df = immig_df[[ 'immigration_per_100000', 'country_iso3_id', 'year_id']]
@@ -268,7 +304,7 @@ def load_data(conn, t_country, t_population, t_crime, t_immig):
             print(f"Error during database operation: {error}")
             if conn:
                 conn.rollback()
-                
+
         finally:
             if conn:
                 cur.close()
@@ -281,7 +317,7 @@ def load_data(conn, t_country, t_population, t_crime, t_immig):
     def load_population(conn, t_population):
         data_to_insert = [tuple(row) for row in t_population.to_numpy()]
         conflict_rule = "ON CONFLICT (country_iso3_id, year_id) DO NOTHING"
-        insert_data(conn, "population","(population, country_iso3_id, year_id)", data_to_insert, conflict_rule)
+        insert_data(conn, "population", "(population, country_iso3_id, year_id)", data_to_insert, conflict_rule)
 
     def load_crime(conn, t_crime):
         pass
@@ -300,20 +336,20 @@ def load_data(conn, t_country, t_population, t_crime, t_immig):
 
 if __name__ == "__main__":
     db_conn = get_db_connection()
-    
+
     if db_conn:
         try:
             # 1. E
             raw_population_tuple, raw_crime, raw_immig = extract_data()
-            
+
             # 2. T
             t_country, t_population, t_crime, t_immig = transform_data(raw_population_tuple, raw_crime, raw_immig)
-            
+
             # 3. L
             load_data(db_conn, t_country, t_population, t_crime, t_immig)
 
             print("--- Finished ETL ---")
-            
+
         except Exception as e:
             print(f"Pipeline failed: {e}")
         finally:
