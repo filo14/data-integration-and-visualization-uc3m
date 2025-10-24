@@ -134,7 +134,7 @@ def extract_data():
         return raw_population_df, aggregate_codes
 
     def extract_crime():
-        # Define the path to your Excel file
+        # Define the path to our Excel file
         file_path = "./data-sources/un-persons-convicted.xlsx"
 
         # Read the Excel file, specifying that the header is in row 3 (index 2)
@@ -209,13 +209,15 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
 
         return country_df, population_df
 
-    def transform_crime(crime_df, population_df):
+    def transform_crime(crime_df):
+        # Check if data that is supposed to be numerical is numerical indeed
         crime_df["VALUE"] = pandas.to_numeric(crime_df["VALUE"], errors="coerce")
         crime_df = crime_df[crime_df["VALUE"] >= 0]
         crime_df = crime_df[crime_df["VALUE"].notna()]
         # Drop rows where conversion to numeric failed or crime is None
         crime_df.dropna(subset=["VALUE"], inplace=True)
 
+        # Rename fields to match our standard
         crime_df = crime_df.rename(
             columns={
                 "Iso3_code": "country_iso3_id",
@@ -230,6 +232,7 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
             & (crime_df["country_iso3_id"].notna())
         ]
 
+        # since we do not need all the data, we set criteria for the data we need
         category_total = crime_df["Category"] == "Total"
         sex_total = crime_df["Sex"] == "Total"
         people_convicted = crime_df["Indicator"] == "Persons convicted"
@@ -248,13 +251,14 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
             & region_europe
         ]
 
-        # so we have standard rounding of 2 decimal
+        # We have standard rounding of 2 decimal
         crime_df["VALUE"] = crime_df["VALUE"].round(2)
 
-        # as we already have only Rate per 100,000 population and Persons convicted
+        # As we already have only Rate per 100,000 population and Persons convicted
         # we would rename the field
         crime_df = crime_df.rename(columns={"VALUE": "convicts_per_100000"})
 
+        # Only keep the fields that would appear in our database
         crime_df = crime_df[["convicts_per_100000", "country_iso3_id", "year_id"]]
 
         print(f"Successfully transformed crime data.")
@@ -302,7 +306,7 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
     return (
         country_df,
         population_df,
-        transform_crime(raw_crime, population_df),
+        transform_crime(raw_crime),
         transform_immig(raw_immig, population_df),
     )
 
