@@ -19,3 +19,7 @@ delete:
 backup:
 	@echo "--- Creating database backup ---"
 	cd ./database && make backup
+
+connect:
+	@echo "--- Connecting to database ---"
+	cd ./database && make connect
