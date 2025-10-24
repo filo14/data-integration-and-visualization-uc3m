@@ -105,14 +105,23 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
             (population_df['country_iso3_id'].notna())
         ]
 
-        # Extract country name from subfield
-        population_df['country_name'] = population_df['country'].apply(lambda x: x['value'])
+        # Extract country name from subfield and convert to the lowercase
+        population_df['country_name'] = population_df['country'].apply(lambda x: x['value'].strip().lower())
 
-        # Convert population to numeric
+        # Convert population to numeric (normalise numbers)
         population_df['population'] = pandas.to_numeric(population_df['value'], errors='coerce')
+        population_df = population_df[population_df['population'] > 0]
 
         # Drop rows where conversion to numeric failed or population is None
         population_df.dropna(subset=['population'], inplace=True)
+
+        # Round population per integer number
+        population_df['population'] = population_df['population'].round(0)
+        population_df['population'] = population_df['population'].astype(int)
+
+        # Check out the year (starting with 2020)
+        population_df['year_id'] = population_df['year_id'].astype(int)
+        population_df = population_df[population_df['year_id'] >= 2020]
 
         # Create database matching dataframes for country and population
         country_df = population_df[['country_iso3_id', 'country_name']].drop_duplicates(subset=['country_iso3_id']).copy()
@@ -120,14 +129,64 @@ def transform_data(raw_population_tuple, raw_crime, raw_immig):
 
         return country_df, population_df
     
-    def transform_crime(raw_crime):
-        pass
+    def transform_crime(raw_crime, transformed_population_df):
+        # Convert to DataFrame
+        crime_df = pandas.DataFrame(raw_crime)
 
-    def transform_immig(raw_immig):
-        pass
+        # Rename ISO3 field to match database
+        crime_df['country_iso3_id'] = crime_df['countryiso3code']
+
+        # Convert crime to numeric
+        crime_df['convicts'] = pandas.to_numeric(crime_df['value'], errors='coerce')
+        crime_df = crime_df[crime_df['convicts'] >= 0]
+        crime_df = crime_df[crime_df['convicts'].notna()]
+
+        # Drop rows where conversion to numeric failed or crime is None
+        crime_df.dropna(subset=['convicts'], inplace=True)
+
+        # Merge and keep only crimes with countries that exist in transformed population
+        crime_df = crime_df.merge(
+            transformed_population_df,
+            on=['country_iso3_id', 'year_id'],
+            how='inner',
+            validate='many_to_one'
+        )
+
+        # Normalize crime per 100.000 inhabitants
+        crime_df['convicts_per_100000'] = (crime_df['convicts'] / crime_df['population']) * 100000
+
+        return crime_df[['country_iso3_id', 'year_id', 'convicts_per_100000']]
+
+    def transform_immig(raw_immig, transformed_population_df):
+        # Convert to DataFrame
+        immig_df = pandas.DataFrame(raw_immig)
+
+        # Rename ISO3 field to match database
+        immig_df['country_iso3_id'] = immig_df['countryiso3code']
+
+        # Convert crime to numeric
+        immig_df['immigrants'] = pandas.to_numeric(immig_df['value'], errors='coerce')
+        immig_df = immig_df[immig_df['immigrants'] >= 0]
+        immig_df = immig_df[immig_df['immigrants'].notna()]
+
+        # Drop rows where conversion to numeric failed or crime is None
+        immig_df.dropna(subset=['immigrants'], inplace=True)
+
+        # Merge and keep only crimes with countries that exist in transformed population
+        immig_df = immig_df.merge(
+            transformed_population_df,
+            on=['country_iso3_id', 'year_id'],
+            how='inner',
+            validate='many_to_one'
+        )
+
+        # Normalize crime per 100.000 inhabitants
+        immig_df['immigration_per_100000'] = (immig_df['immigrants'] / immig_df['population']) * 100000
+
+        return immig_df[['country_iso3_id', 'year_id', 'immigration_per_100000']]
 
     country_df, population_df = transform_country_and_population(raw_population_tuple)
-    return country_df, population_df, transform_crime(raw_crime), transform_immig(raw_immig)
+    return country_df, population_df, transform_crime(raw_crime, population_df), transform_immig(raw_immig, population_df)
 
 def load_data(conn, t_country, t_population, t_crime, t_immig):
     def insert_data(conn, table_name, columns, data_to_insert, conflict_rule=""):
