@@ -4,3 +4,6 @@ openpyxl
 psycopg2-binary
 country_converter
 pycountry
+seaborn
+geopandas
+scipy
