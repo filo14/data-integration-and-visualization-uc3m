@@ -170,7 +170,7 @@ function StickyTextChangingImageSection({ title, text, visuals }) {
         {/* RIGHT: TEXT (Static) */}
         <div className="md:w-1/2 h-full flex items-center justify-center p-8 md:p-16">
           <div className="max-w-xl">
-            <h2 className="text-4xl md:text-5xl font-bold text-yellow-400 mb-8">{title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-8">{title}</h2>
             <p className="text-xl text-blue-100 leading-relaxed mb-8">
               {text}
             </p>
@@ -319,7 +319,7 @@ function TextBlock({ step, index, setActiveStep }) {
   return (
     <div ref={ref} className="min-h-screen flex items-center justify-center p-8 md:p-16 border-l border-blue-800/50">
       <div className="transition-opacity duration-500">
-        <span className="text-yellow-400 font-bold text-6xl opacity-20 block mb-4">0{index + 1}</span>
+        <span className="font-bold text-6xl opacity-40 block mb-4">0{index + 1}</span>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">{step.title}</h2>
         <p className="text-lg md:text-xl text-blue-100 leading-relaxed">{step.content}</p>
       </div>

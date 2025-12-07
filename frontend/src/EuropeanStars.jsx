@@ -12,7 +12,7 @@ export default function EuropeanStars() {
                 alt=""
                 className="w-[500px] h-[500px] max-w-none opacity-60 mix-blend-screen"
                 style={{
-                    transform: 'translate(50%, -50%)',
+                    transform: 'translate(45%, -45%)',
                 }}
             />
         </div>
