@@ -8,33 +8,34 @@ years = [2018, 2019, 2020, 2021, 2022, 2023]
 countries = {}
 crime = {}
 immigration = {}
+
+# this should be a dataframe with crime, immigration and country name and pos
+# right now it's fake
 df = pd.read_csv("data.csv")
-df.head()
 
 df['text'] = df['name'] + '<br>Immigration ' + (df['immigration'] / 1e6).astype(str) + '\n Crime' + df['crime'].astype(str)
-limits = [(0, 3), (3, 11), (11, 21), (21, 50), (50, 3000)]
-colors = ["royalblue", "crimson", "lightseagreen", "orange", "lightgrey"]
-cities = []
-scale = 5000
+scale = 1
+
+max_crime = max(df['crime'].astype(float))
+colors = []
+for i in df['crime']:
+    quantity = i / max_crime
+    colors.append(quantity)
 
 fig = go.Figure()
-
-for i in range(len(limits)):
-    lim = limits[i]
-    df_sub = df[lim[0]:lim[1]]
-    fig.add_trace(go.Scattergeo(
-        locationmode='ISO-3',
-        lon=df_sub['lon'],
-        lat=df_sub['lat'],
-        text=df_sub['text'],
-        marker=dict(
-            size=df_sub['immigration'] / scale,
-            color=colors[i],
-            line_color='rgb(40,40,40)',
-            line_width=0.5,
-            sizemode='area'
-        ),
-        name='{0} - {1}'.format(lim[0], lim[1])))
+fig.add_trace(go.Scattergeo(
+    locationmode='ISO-3',
+    lon=df['lon'],
+    lat=df['lat'],
+    text=df['text'],
+    marker=dict(
+        size=df['immigration'] / scale,
+        color=df['crime'] / max_crime,
+        line_color='rgb(40,40,40)',
+        line_width=0.5,
+        colorscale=[(0, "white"), (1, "red")],
+        sizemode='area'
+    )))
 
 fig.update_layout(
     title_text='Random data I made up',
