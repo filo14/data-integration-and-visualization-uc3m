@@ -1,4 +1,4 @@
-.PHONY: venv db
+.PHONY: venv db backend
 
 venv:
 	@echo "--- Setting up python venv ---"
@@ -23,3 +23,6 @@ backup:
 connect:
 	@echo "--- Connecting to database ---"
 	cd ./database && make connect
+
+backend:
+	cd backend && ../.venv/bin/uvicorn main:app --reload

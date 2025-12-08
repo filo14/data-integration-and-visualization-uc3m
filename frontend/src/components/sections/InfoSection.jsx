@@ -1,5 +1,6 @@
 import React from 'react';
 import { Activity, Globe } from 'lucide-react';
+import DataGraph from '../DataGraph';
 
 export default function InfoSection() {
     return (
@@ -36,6 +37,10 @@ export default function InfoSection() {
                             that defies simple causality.
                         </p>
                     </div>
+                </div>
+
+                <div className="w-full">
+                    <DataGraph />
                 </div>
 
             </div>
