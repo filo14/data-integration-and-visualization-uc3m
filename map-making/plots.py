@@ -293,15 +293,14 @@ df = pandas.merge(
 
 # clean df to make any number not there into a 0
 
-df['text'] = df['country_name'] + '<br>Immigration ' + (df['immigration_per_100000']).astype(str) + '\n Crime' + df['convicts_per_100000'].astype(str)
+df['text'] = df['country_name'] + '<br>Immigration ' + (df['immigration_per_100000']).astype(str) + '\n Crimes ' + df['convicts_per_100000'].astype(str)
 
 max_crime = max(df['convicts_per_100000'].astype(float))
 scale = 10
 
-# for y in YEARS:
-for y in [2018, 2019]:
+for y in YEARS:
     yearly_df = df.loc[df["year_id"] == y]
-    yearly_df.to_csv(f"data{y}.csv")
+    # yearly_df.to_csv(f"data{y}.csv")
 
     fig = go.Figure()
     fig.add_trace(go.Scattergeo(
