@@ -33,7 +33,6 @@ export default function App() {
         content: 'We can establish a baseline for the entire European Union. These numbers represent the average annual rates per 100,000 people across all 27 member states from 2018 to 2022.',
         label: 'EU Average Rates',
         data: storyData.globalStats,
-        visualColor: "bg-blue-900"
       },
       {
         id: 2,
@@ -42,7 +41,6 @@ export default function App() {
         content: 'Taking a look at the countries with the highest crime rates, we can see that immigration rates are not necessarily high in these countries compared to the EU average, with the small country Luxembourg being the only outlier. But what about the countries with the highest immigration rates?',
         label: 'Top 5 by Crime Rate',
         data: storyData.topCrime,
-        visualColor: "bg-indigo-800",
         referenceLine: {
           value: storyData.globalStats?.immigration,
           label: 'Average EU Immigration Rate',
@@ -56,7 +54,6 @@ export default function App() {
         content: 'The countries with the highest immigration rates do not consistently feature the highest crime rates, further challenging the direct correlation hypothesis. Again Luxembourg is the only outlier. Do the maths confirm this?',
         label: 'Top 5 by Immigration Rate',
         data: storyData.topImmigration,
-        visualColor: "bg-slate-800",
         referenceLine: {
           value: storyData.globalStats?.crime,
           label: 'Average EU Crime Rate',
@@ -66,12 +63,11 @@ export default function App() {
       {
         id: 4,
         title: "The Correlation Verdict",
-        content: `Statistical analysis reveals a Pearson correlation coefficient (r) of ${(storyData.correlation || 0).toFixed(3)}. The positive value indicates a slight alignment: generally, higher immigration is faintly linked to higher crime. However, a value of ${storyData.correlation} is statistically weak. It implies that while there is a slight overlap, immigration is not a strong or reliable predictor of crime rates across the EU, suggesting other factors are more significant.`,
+        content: `Statistical analysis reveals a Pearson correlation coefficient (r) of ${(storyData.correlation || 0).toFixed(3)}. The positive value indicates a slight alignment: generally, higher immigration is faintly linked to higher crime. However, a value of ${(storyData.correlation || 0).toFixed(3)} is statistically weak. It implies that while there is a slight overlap, immigration is not a strong or reliable predictor of crime rates across the EU, suggesting other factors are more significant.`,
         visualType: 'correlation',
         data: storyData.correlationData,
         label: 'Immigration vs Crime Correlation',
-        correlation: storyData.correlation,
-        visualColor: "bg-slate-900"
+        correlation: storyData.correlation
       }
     ];
 

@@ -40,20 +40,9 @@ export default function CorrelationChart({ data, correlation }) {
                         label={{ value: 'Crime Rate', angle: -90, position: 'insideLeft', fill: THEME.colors.textStrong, dy: 50 }}
                     />
                     <Tooltip
-                        cursor={{ strokeDasharray: '3 3' }}
-                        content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                                const data = payload[0].payload;
-                                return (
-                                    <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl text-white">
-                                        <p className="font-bold border-b border-slate-700 pb-1 mb-2">{data.country}</p>
-                                        <p className="text-emerald-400 text-sm">Immigration: {data.immigration}</p>
-                                        <p className="text-red-400 text-sm">Crime: {data.crime}</p>
-                                    </div>
-                                );
-                            }
-                            return null;
-                        }}
+                        contentStyle={{ backgroundColor: THEME.colors.tooltipBg, border: 'none', borderRadius: '8px', color: '#f8fafc' }}
+                        itemStyle={{ color: '#e2e8f0' }}
+                        cursor={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
                     />
                     <Scatter name="Countries" data={data} fill={THEME.colors.accent} shape="circle" />
                 </ScatterChart>

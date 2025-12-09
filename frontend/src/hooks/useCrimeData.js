@@ -36,8 +36,8 @@ export default function useCrimeData() {
                 const crimeTrend = calculateAnnualTrends(processed, 'convicts_per_100000');
                 const immTrend = calculateAnnualTrends(processed, 'immigration_per_100000');
 
-                setCrimeVisuals(createTrendVisuals(crimeTrend, 'Average EU Crime Rate', THEME.colors.crime, 1000));
-                setImmigrationVisuals(createTrendVisuals(immTrend, 'Average EU Immigration Rate', THEME.colors.immigration, 2000));
+                setCrimeVisuals(createTrendVisuals(crimeTrend, 'Average EU Crime Rate per 100,000', THEME.colors.crime, 1000, 'Crime Rate'));
+                setImmigrationVisuals(createTrendVisuals(immTrend, 'Average EU Immigration Rate per 100,000', THEME.colors.immigration, 2000, 'Immigration Rate'));
 
                 // Prepare Story Data
                 const comparison = crimeTrend.map(c => ({
@@ -79,11 +79,12 @@ export default function useCrimeData() {
     return { data, loading, crimeVisuals, immigrationVisuals, storyData };
 }
 
-const createTrendVisuals = (trendData, label, color, maxDomain) => {
+const createTrendVisuals = (trendData, label, color, maxDomain, metricName) => {
     return trendData.map((_, i) => ({
         id: `trend-${trendData[i].year}`,
         type: 'trend',
         label,
+        metricName,
         data: trendData.slice(0, i + 1),
         chartColor: color,
         domainMax: maxDomain

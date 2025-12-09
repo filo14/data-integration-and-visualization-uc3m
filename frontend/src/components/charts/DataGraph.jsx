@@ -118,6 +118,7 @@ export default function DataGraph({ rawData, loading }) {
                         <Tooltip
                             contentStyle={{ backgroundColor: THEME.colors.tooltipBg, border: 'none', borderRadius: '8px', color: '#f8fafc' }}
                             itemStyle={{ color: '#e2e8f0' }}
+                            cursor={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
                         />
                         <Legend wrapperStyle={{ color: THEME.colors.text }} />
                         {selectedCountries.map((iso3, index) => (

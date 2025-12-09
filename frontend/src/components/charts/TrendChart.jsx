@@ -2,7 +2,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { THEME } from '../../config/theme';
 
-export default function TrendChart({ data, color, domainMax }) {
+export default function TrendChart({ data, color, domainMax, metricName }) {
     const strokeColor = color || THEME.colors.primary;
 
     return (
@@ -35,12 +35,11 @@ export default function TrendChart({ data, color, domainMax }) {
                         contentStyle={{ backgroundColor: THEME.colors.tooltipBg, border: 'none', borderRadius: '8px', color: '#f8fafc' }}
                         itemStyle={{ color: '#e2e8f0' }}
                         cursor={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-                        labelFormatter={(year) => `Year: ${year}`}
                     />
                     <Line
                         type="monotone"
                         dataKey="value"
-                        name="per 100k"
+                        name={metricName || 'Value'}
                         stroke={strokeColor}
                         strokeWidth={4}
                         dot={{ r: 6, fill: strokeColor, strokeWidth: 3, stroke: '#fff' }}

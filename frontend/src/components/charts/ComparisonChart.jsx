@@ -34,7 +34,6 @@ export default function ComparisonChart({ data }) {
                         contentStyle={{ backgroundColor: THEME.colors.tooltipBg, border: 'none', borderRadius: '8px', color: '#f8fafc' }}
                         itemStyle={{ color: '#e2e8f0' }}
                         cursor={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
-                        labelFormatter={(year) => `Year: ${year}`}
                     />
                     <Legend formatter={(value) => <span style={{ color: '#ffffff' }}>{value}</span>} />
 

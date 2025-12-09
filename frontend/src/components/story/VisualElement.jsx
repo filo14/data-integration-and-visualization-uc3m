@@ -19,7 +19,7 @@ const icons = {
 };
 
 export default function VisualElement({ visual }) {
-    const { type = 'default', color = 'bg-white/5', label = 'Loading...', subLabel, data, chartColor, domainMax, correlation } = visual || {};
+    const { type = 'default', color = 'bg-white/5', label = 'Loading...', subLabel, data, chartColor, domainMax, correlation, metricName } = visual || {};
     const IconComponent = icons[type] || icons.default;
 
     // Charts that share the same glassmorphism card style
@@ -35,7 +35,7 @@ export default function VisualElement({ visual }) {
                             {/* Immigration Stat */}
                             <div className="flex items-center justify-between border-b border-white/10 pb-6">
                                 <div>
-                                    <h4 className="text-xl text-blue-200 mb-1">Average Immigration</h4>
+                                    <h4 className="text-xl text-blue-200 mb-1">Average Immigration Rate</h4>
                                     <p className="text-sm text-blue-300/60">Per 100k inhabitants</p>
                                 </div>
                                 <div className="text-right">
@@ -67,7 +67,7 @@ export default function VisualElement({ visual }) {
                 <div className="absolute inset-0 p-6 flex flex-col bg-blue-1000/80 backdrop-blur-sm">
                     <h3 className="text-2xl font-bold text-white mb-2 text-center tracking-wide">{label}</h3>
                     <div className="flex-1 min-h-0 w-full">
-                        <TrendChart data={data} color={chartColor} domainMax={domainMax} />
+                        <TrendChart data={data} color={chartColor} domainMax={domainMax} metricName={metricName} />
                     </div>
                     {subLabel && (
                         <p className="mt-2 text-center text-blue-200 text-sm font-mono border border-blue-400/30 px-3 py-1 rounded-full self-center">
