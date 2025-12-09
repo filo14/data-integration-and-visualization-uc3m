@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import VisualElement from '../ui/VisualElement';
 import ScrollStep from '../ui/ScrollStep';
 
-export default function LegacySection({ steps }) {
+export default function StorySection({ steps }) {
     const [activeStep, setActiveStep] = useState(0);
 
     const getActiveVisual = () => {

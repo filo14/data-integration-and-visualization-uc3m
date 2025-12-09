@@ -1,27 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export default function DataGraph() {
-    const [rawData, setRawData] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function DataGraph({ rawData, loading }) {
     const [selectedCountries, setSelectedCountries] = useState(['ESP', 'AUT', 'DEU']); // Default selection
     const [metric, setMetric] = useState('convicts_per_100000'); // 'convicts_per_100000' or 'immigration_per_100000'
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/api/full-data');
-                const data = await response.json();
-                setRawData(data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     // Process data for Recharts
     // Structure needed: [{ year: 2018, ESP: 12.5, FRA: 10.2, ... }, { year: 2019, ... }]
