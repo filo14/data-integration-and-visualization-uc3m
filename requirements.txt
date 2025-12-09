@@ -7,3 +7,9 @@ pycountry
 seaborn
 geopandas
 scipy
+plotly
+fastapi
+uvicorn
+psycopg2-binary
+pydantic
+python-dotenv

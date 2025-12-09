@@ -24,5 +24,10 @@ connect:
 	@echo "--- Connecting to database ---"
 	cd ./database && make connect
 
-backend:
+backend: venv
+	@echo "--- Starting backend server ---"
 	cd backend && ../.venv/bin/uvicorn main:app --reload
+
+plots: venv
+	@echo "--- Generating plots ---"
+	cd map-making && ../.venv/bin/python plots.py

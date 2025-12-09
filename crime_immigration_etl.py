@@ -12,22 +12,6 @@ DB_PASSWORD = "mypassword"
 # Years of which we take data
 YEARS = range(2018, 2023, 1)
 
-
-def map_countries():
-    COUNTRIES_MAP = {}
-    for country in pycountry.countries:
-        normalised_name = country.name
-        COUNTRIES_MAP[country.name.lower()] = normalised_name
-        COUNTRIES_MAP[country.alpha_2.lower()] = normalised_name
-        COUNTRIES_MAP[country.alpha_3.lower()] = normalised_name
-        if hasattr(country, "official_name"):
-            COUNTRIES_MAP[country.official_name.lower()] = normalised_name
-    return COUNTRIES_MAP
-
-
-COUNTRIES_MAP = map_countries()
-
-
 def normalise_country(country):
     if not country:
         return None
@@ -47,13 +31,6 @@ def map_countries():
 
 
 COUNTRIES_MAP = map_countries()
-
-
-def normalise_country(country):
-    if not country:
-        return None
-    return COUNTRIES_MAP.get(country.strip().lower(), country)
-
 
 def get_db_connection(retries=5, delay=3):
     print(f"Attempting to connect to PostgreSQL at {DB_HOST}:{DB_PORT}/{DB_NAME}...")
