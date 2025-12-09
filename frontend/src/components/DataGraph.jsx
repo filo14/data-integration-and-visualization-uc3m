@@ -64,10 +64,10 @@ export default function DataGraph({ rawData, loading }) {
     if (loading) return <div className="text-white text-center">Loading data...</div>;
 
     return (
-        <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10">
+        <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 h-full flex flex-col">
             <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
                 <div>
-                    <h3 className="text-xl font-bold text-white mb-6 tracking-wide">Complete collected data</h3>
+                    <h3 className="text-xl font-bold text-white mb-6 tracking-wide">Crime & Immigration per Country</h3>
                     <div className="flex gap-2 bg-white/10 p-1 rounded-lg inline-flex">
                         <button
                             onClick={() => setMetric('convicts_per_100000')}

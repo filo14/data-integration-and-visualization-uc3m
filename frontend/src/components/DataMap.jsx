@@ -20,7 +20,7 @@ export default function DataMap({ rawData, loading }) {
             marker: {
                 size: currentYearData.map(d => (d.immigration_per_100000 || 0) / 15), // Scale factor adjusted
                 color: currentYearData.map(d => d.convicts_per_100000),
-                colorscale: [[0, '#f87171'], [1, '#7f1d1d']], // Red 400 to Red 900
+                colorscale: [[0, '#ffffffff'], [1, '#ff0000ff']], // Red 400 to Red 900
                 cmin: 0,
                 cmax: maxCrime,
                 opacity: 0.9,
@@ -34,9 +34,11 @@ export default function DataMap({ rawData, loading }) {
     if (loading) return <div className="text-white text-center">Loading map...</div>;
 
     return (
-        <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 my-8 shadow-2xl">
+        <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl h-full flex flex-col">
 
-            <div className="w-full h-[500px] rounded-lg overflow-hidden border border-white/10 relative">
+            <h3 className="text-xl font-bold text-white mb-6 tracking-wide">Interactive Crime & Immigration Map</h3>
+
+            <div className="flex-1 w-full min-h-[400px] rounded-lg overflow-hidden border border-white/10 relative">
                 <Plot
                     data={[
                         {
@@ -51,7 +53,6 @@ export default function DataMap({ rawData, loading }) {
                     ]}
                     layout={{
                         geo: {
-                            scope: 'europe',
                             bgcolor: 'rgba(0,0,0,0)',
                             showland: true,
                             landcolor: '#1e293b', // Slate 800

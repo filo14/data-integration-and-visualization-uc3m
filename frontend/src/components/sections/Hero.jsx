@@ -1,7 +1,7 @@
 import React from 'react';
-import DataMap from '../DataMap';
+import euMap from '../../assets/Flag_map_of_the_European_Union.png';
 
-export default function Hero({ rawData, loading }) {
+export default function Hero() {
     return (
         <section className="relative z-10 max-w-6xl mx-auto px-6 pt-12 pb-32">
             <div className="grid md:grid-cols-2 gap-6 items-center">
@@ -21,7 +21,11 @@ export default function Hero({ rawData, loading }) {
                     </div>
                 </div>
                 <div className="flex justify-center items-center mt-8 md:mt-0">
-                    <DataMap rawData={rawData} loading={loading} />
+                    <img
+                        src={euMap}
+                        alt="Flag Map of the European Union"
+                        className="w-full max-w-lg h-auto drop-shadow-[0_0_35px_rgba(0,0,0,0.6)] opacity-95 hover:opacity-100 transition-opacity duration-700"
+                    />
                 </div>
             </div>
         </section>

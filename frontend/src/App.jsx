@@ -147,8 +147,7 @@ export default function App() {
         <EuropeanStars />
       </div>
 
-      <Hero rawData={data} loading={loading} />
-
+      <Hero />
       <StickySection
         title="Crime in the EU"
         subtitle="2018 to 2022"
@@ -167,8 +166,13 @@ export default function App() {
 
       <StorySection steps={storySteps} />
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <DataGraph rawData={data} loading={loading} />
+      <div className="max-w-[1600px] mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="w-full">
+          <DataMap rawData={data} loading={loading} />
+        </div>
+        <div className="w-full">
+          <DataGraph rawData={data} loading={loading} />
+        </div>
       </div>
 
       <footer className="bg-blue-950 text-blue-300 py-12 text-center relative z-10">

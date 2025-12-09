@@ -46,7 +46,7 @@ export default function TrendChart({ data, color, domainMax }) {
                     <Line
                         type="monotone"
                         dataKey="value"
-                        name="Rate per 100k"
+                        name="per 100k"
                         stroke={strokeColor}
                         strokeWidth={4}
                         dot={{ r: 6, fill: strokeColor, strokeWidth: 3, stroke: '#fff' }}
