@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import VisualElement from '../ui/VisualElement';
-import ScrollStep from '../ui/ScrollStep';
+import VisualElement from '../story/VisualElement';
+import ScrollStep from '../story/ScrollStep';
 
 export default function StorySection({ steps }) {
     const [activeStep, setActiveStep] = useState(0);
@@ -12,9 +12,11 @@ export default function StorySection({ steps }) {
         return {
             type: step.visualType,
             color: step.visualColor,
-            label: `${step.title}`,
+            label: step.label || step.title,
             subLabel: `FIG ${step.id + 1}.0`,
-            data: step.data // Pass data for comparison chart
+            data: step.data,
+            correlation: step.correlation,
+            referenceLine: step.referenceLine // Pass reference line for benchmark
         };
     };
 

@@ -1,14 +1,9 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { THEME } from '../../config/theme';
 
 export default function TrendChart({ data, color, domainMax }) {
-    // Extract Tailwind color hex/class or use a default
-    // We expect color to be a hex or we map it.
-    // For simplicity, let's use a nice dynamic color or the one passed prop if it's a hex. 
-    // If it's a tailwind class like 'bg-blue-500', we might need to compute it, 
-    // but Recharts needs hex strings usually.
-    // Let's assume we pass a hex color or use a default.
-    const strokeColor = color || '#60a5fa'; // Fallback blue
+    const strokeColor = color || THEME.colors.primary;
 
     return (
         <div className="w-full h-full">
@@ -22,22 +17,22 @@ export default function TrendChart({ data, color, domainMax }) {
                         bottom: 20,
                     }}
                 >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+                    <CartesianGrid strokeDasharray="3 3" stroke={THEME.colors.grid} />
                     <XAxis
                         dataKey="year"
                         type="number"
                         domain={[2018, 2022]}
                         tickCount={5}
-                        stroke="#94a3b8"
-                        tick={{ fill: '#94a3b8' }}
+                        stroke={THEME.colors.text}
+                        tick={{ fill: THEME.colors.text }}
                     />
                     <YAxis
-                        stroke="#94a3b8"
-                        tick={{ fill: '#94a3b8' }}
+                        stroke={THEME.colors.text}
+                        tick={{ fill: THEME.colors.text }}
                         domain={[0, domainMax || 'auto']}
                     />
                     <Tooltip
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#f8fafc' }}
+                        contentStyle={{ backgroundColor: THEME.colors.tooltipBg, border: 'none', borderRadius: '8px', color: '#f8fafc' }}
                         itemStyle={{ color: '#e2e8f0' }}
                         cursor={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
                         labelFormatter={(year) => `Year: ${year}`}

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import VisualElement from '../ui/VisualElement';
+import VisualElement from '../story/VisualElement';
 
 export default function StickySection({ title, subtitle, text, followText, visuals }) {
     const containerRef = useRef(null);
@@ -12,7 +12,6 @@ export default function StickySection({ title, subtitle, text, followText, visua
             const sectionHeight = rect.height;
             const viewportHeight = window.innerHeight;
 
-            // Calculate how far we've scrolled into this section
             const scrolled = -rect.top;
 
             if (scrolled < 0) {
@@ -38,7 +37,7 @@ export default function StickySection({ title, subtitle, text, followText, visua
 
     return (
         <div ref={containerRef} className="relative" style={{ height: `${visuals.length * 100}vh` }}>
-            <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden bg-blue-950">
+            <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden bg-primary-dark">
 
                 {/* LEFT: VISUALS (Changing) */}
                 <div className="md:w-1/2 h-full flex items-center justify-center p-8 bg-black/20">

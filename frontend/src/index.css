@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+@theme {
+    /* Semantic Colors */
+    --color-primary: #003399;
+    /* EU Blue */
+    --color-primary-dark: #002266;
+    --color-primary-light: #3366cc;
+
+    --color-accent: #facc15;
+    /* Yellow-400 */
+    --color-accent-light: #fde047;
+
+    --color-crime: #ef4444;
+    /* Red-500 */
+    --color-crime-dim: rgba(239, 68, 68, 0.2);
+
+    --color-immigration: #10b981;
+    /* Emerald-500 */
+    --color-immigration-dim: rgba(16, 185, 129, 0.2);
+
+    /* Custom Slate Shades */
+    --color-slate-750: #2d3748;
+    --color-slate-850: #1a202c;
+
+    /* Fonts */
+    --font-sans: Inter, system-ui, sans-serif;
+
+    /* Animations */
+    --animate-spin-slow: spin 3s linear infinite;
+}
+
+/* Base Styles */
+body {
+    background-color: var(--color-primary);
+    color: white;
+}

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { THEME } from '../../config/theme';
 
 export default function DataGraph({ rawData, loading }) {
     const [selectedCountries, setSelectedCountries] = useState(['ESP', 'AUT', 'DEU']); // Default selection
     const [metric, setMetric] = useState('convicts_per_100000'); // 'convicts_per_100000' or 'immigration_per_100000'
 
-    // Process data for Recharts
-    // Structure needed: [{ year: 2018, ESP: 12.5, FRA: 10.2, ... }, { year: 2019, ... }]
     const chartData = useMemo(() => {
         if (!rawData.length) return [];
 
@@ -22,7 +21,6 @@ export default function DataGraph({ rawData, loading }) {
     }, [rawData, metric]);
 
     const availableCountries = useMemo(() => {
-        // First, check which countries have data for all years 2018-2022
         const countryYears = new Map();
         rawData.forEach(d => {
             // Check if there is a valid value for the current metric
@@ -59,7 +57,16 @@ export default function DataGraph({ rawData, loading }) {
         );
     };
 
-    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088FE', '#00C49F'];
+    // High-contrast palette for dark mode
+    const colors = [
+        THEME.colors.accent,    // Yellow
+        '#22d3ee',             // Cyan
+        '#e879f9',             // Fuchsia
+        '#a3e635',             // Lime
+        '#fb923c',             // Orange
+        THEME.colors.immigration, // Emerald
+        THEME.colors.crime      // Red
+    ];
 
     if (loading) return <div className="text-white text-center">Loading data...</div>;
 
@@ -105,14 +112,14 @@ export default function DataGraph({ rawData, loading }) {
             <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                        <XAxis dataKey="year" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" label={{ value: 'per 100k people', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                        <CartesianGrid strokeDasharray="3 3" stroke={THEME.colors.grid} />
+                        <XAxis dataKey="year" stroke={THEME.colors.text} />
+                        <YAxis stroke={THEME.colors.text} label={{ value: 'per 100k people', angle: -90, position: 'insideLeft', fill: THEME.colors.textStrong }} />
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#1e293b', devder: 'none', borderRadius: '8px', color: '#f8fafc' }}
+                            contentStyle={{ backgroundColor: THEME.colors.tooltipBg, border: 'none', borderRadius: '8px', color: '#f8fafc' }}
                             itemStyle={{ color: '#e2e8f0' }}
                         />
-                        <Legend wrapperStyle={{ color: '#94a3b8' }} />
+                        <Legend wrapperStyle={{ color: THEME.colors.text }} />
                         {selectedCountries.map((iso3, index) => (
                             <Line
                                 key={iso3}
@@ -128,9 +135,6 @@ export default function DataGraph({ rawData, loading }) {
                     </LineChart>
                 </ResponsiveContainer>
             </div>
-            <p className="text-xs text-blue-300/60 mt-4 text-center">
-                Data source: World Bank, EU & UN (2018-2022)
-            </p>
         </div>
     );
 }
