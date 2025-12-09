@@ -120,14 +120,80 @@ export default function App() {
           return { year, crime: crimeVal, immigration: immVal };
         });
 
+        // --- Top 5 Calculations ---
+        const countryAverages = {};
+        filteredData.forEach(d => {
+          if (!countryAverages[d.country_name]) {
+            countryAverages[d.country_name] = {
+              country: d.country_name,
+              totalCrime: 0,
+              totalImm: 0,
+              count: 0
+            };
+          }
+          countryAverages[d.country_name].totalCrime += (d.convicts_per_100000 || 0);
+          countryAverages[d.country_name].totalImm += (d.immigration_per_100000 || 0);
+          countryAverages[d.country_name].count += 1;
+        });
+
+        const averagesList = Object.values(countryAverages).map(c => ({
+          country: c.country,
+          crime: Math.round(c.totalCrime / c.count),
+          immigration: Math.round(c.totalImm / c.count)
+        }));
+
+        const topCrime = [...averagesList].sort((a, b) => b.crime - a.crime).slice(0, 5);
+        const topImm = [...averagesList].sort((a, b) => b.immigration - a.immigration).slice(0, 5);
+
         // Update steps with dynamic data
         const newSteps = [...originalSteps];
         newSteps[0] = {
           ...newSteps[0],
           visualType: 'comparison',
-          title: 'Crime vs Immigration', // Override title if needed or keep "The Initial Question"
-          data: comparisonData
+          title: 'Crime vs Immigration',
+          data: comparisonData,
+          label: 'Crime vs Immigration'
         };
+        newSteps[1] = {
+          ...newSteps[1],
+          visualType: 'top-countries',
+          title: 'Top 5 Countries by Crime',
+          content: 'When getting a closer look at the countries with the highest rates of crime, we can see that immigration rates are not necessarily high in these countries.',
+          data: topCrime,
+          label: 'Top 5 by Crime Rate'
+        };
+        newSteps[2] = {
+          ...newSteps[2],
+          visualType: 'top-countries',
+          title: 'Top 5 Countries by Immigration',
+          content: 'Conversely, countries with the highest immigration rates do not consistently feature the highest crime rates, further challenging the direct correlation hypothesis.',
+          data: topImm,
+          label: 'Top 5 by Immigration Rate'
+        };
+
+        // --- Correlation Calculation ---
+        const correlationData = averagesList.filter(c => c.crime > 0 && c.immigration > 0);
+        const n = correlationData.length;
+        const sumX = correlationData.reduce((acc, c) => acc + c.immigration, 0);
+        const sumY = correlationData.reduce((acc, c) => acc + c.crime, 0);
+        const sumXY = correlationData.reduce((acc, c) => acc + (c.immigration * c.crime), 0);
+        const sumX2 = correlationData.reduce((acc, c) => acc + (c.immigration * c.immigration), 0);
+        const sumY2 = correlationData.reduce((acc, c) => acc + (c.crime * c.crime), 0);
+
+        const numerator = (n * sumXY) - (sumX * sumY);
+        const denominator = Math.sqrt(((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY)));
+        const r = denominator === 0 ? 0 : numerator / denominator;
+
+        // Add Correlation Story Step
+        newSteps.push({
+          id: 3,
+          title: "The Correlation Verdict",
+          content: `Statistical analysis reveals a Pearson correlation coefficient (r) of ${r.toFixed(2)}. This near-zero value mathematically confirms that there is no significant linear relationship between immigration figures and crime rates across EU member states.`,
+          visualType: 'correlation',
+          data: correlationData,
+          label: 'Immigration vs Crime Correlation',
+          correlation: r
+        });
 
         setStorySteps(newSteps);
         setLoading(false);

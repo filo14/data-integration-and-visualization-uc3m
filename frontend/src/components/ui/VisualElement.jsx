@@ -15,9 +15,11 @@ const icons = {
 
 import TrendChart from './TrendChart';
 import ComparisonChart from './ComparisonChart';
+import TopCountriesChart from './TopCountriesChart';
+import CorrelationChart from './CorrelationChart';
 
 export default function VisualElement({ visual }) {
-    const { type = 'default', color = 'bg-white/5', label = 'Loading...', subLabel, data, chartColor, domainMax } = visual || {};
+    const { type = 'default', color = 'bg-white/5', label = 'Loading...', subLabel, data, chartColor, domainMax, correlation } = visual || {};
     const IconComponent = icons[type] || icons.default;
 
     if (type === 'comparison') {
@@ -26,6 +28,28 @@ export default function VisualElement({ visual }) {
                 <h3 className="text-2xl font-bold text-white mb-6 text-center tracking-wide">{label}</h3>
                 <div className="w-full h-[400px]">
                     <ComparisonChart data={data} />
+                </div>
+            </div>
+        );
+    }
+
+    if (type === 'top-countries') {
+        return (
+            <div className="w-full bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl">
+                <h3 className="text-2xl font-bold text-white mb-6 text-center tracking-wide">{label}</h3>
+                <div className="w-full h-[400px]">
+                    <TopCountriesChart data={data} />
+                </div>
+            </div>
+        );
+    }
+
+    if (type === 'correlation') {
+        return (
+            <div className="w-full bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl">
+                <h3 className="text-2xl font-bold text-white mb-6 text-center tracking-wide">{label}</h3>
+                <div className="w-full h-[400px]">
+                    <CorrelationChart data={data} correlation={correlation} />
                 </div>
             </div>
         );

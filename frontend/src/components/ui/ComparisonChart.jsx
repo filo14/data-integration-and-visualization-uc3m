@@ -11,7 +11,7 @@ export default function ComparisonChart({ data }) {
                         top: 20,
                         right: 30,
                         left: 20,
-                        bottom: 5,
+                        bottom: 20,
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
@@ -27,7 +27,6 @@ export default function ComparisonChart({ data }) {
                     <YAxis
                         stroke="#94a3b8"
                         tick={{ fill: '#94a3b8' }}
-                        label={{ value: 'per 100k people', angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
                     />
 
                     <Tooltip

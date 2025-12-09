@@ -19,7 +19,7 @@ export default function TrendChart({ data, color, domainMax }) {
                         top: 20,
                         right: 30,
                         left: 20,
-                        bottom: 5,
+                        bottom: 20,
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
@@ -35,7 +35,6 @@ export default function TrendChart({ data, color, domainMax }) {
                         stroke="#94a3b8"
                         tick={{ fill: '#94a3b8' }}
                         domain={[0, domainMax || 'auto']}
-                        label={{ value: 'per 100k people', angle: -90, position: 'insideLeft', fill: '#94a3b8' }}
                     />
                     <Tooltip
                         contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#f8fafc' }}
