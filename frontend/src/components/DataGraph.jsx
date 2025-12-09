@@ -67,13 +67,13 @@ export default function DataGraph({ rawData, loading }) {
         <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10">
             <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
                 <div>
-                    <h3 className="text-xl font-bold text-white mb-2">Collected statistics</h3>
+                    <h3 className="text-xl font-bold text-white mb-6 tracking-wide">Complete collected data</h3>
                     <div className="flex gap-2 bg-white/10 p-1 rounded-lg inline-flex">
                         <button
                             onClick={() => setMetric('convicts_per_100000')}
                             className={`px-3 py-1 rounded-md text-sm transition-colors ${metric === 'convicts_per_100000' ? 'bg-blue-500 text-white' : 'text-blue-200 hover:text-white'}`}
                         >
-                            Convicts
+                            Crime
                         </button>
                         <button
                             onClick={() => setMetric('immigration_per_100000')}
@@ -107,7 +107,7 @@ export default function DataGraph({ rawData, loading }) {
                     <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
                         <XAxis dataKey="year" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" label={{ value: 'Per 100k Population', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
+                        <YAxis stroke="#94a3b8" label={{ value: 'per 100k people', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
                         <Tooltip
                             contentStyle={{ backgroundColor: '#1e293b', devder: 'none', borderRadius: '8px', color: '#f8fafc' }}
                             itemStyle={{ color: '#e2e8f0' }}

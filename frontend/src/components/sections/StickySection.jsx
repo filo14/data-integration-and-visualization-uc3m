@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import VisualElement from '../ui/VisualElement';
 
-export default function StickySection({ title, text, visuals }) {
+export default function StickySection({ title, subtitle, text, followText, visuals }) {
     const containerRef = useRef(null);
     const [activeVisualIndex, setActiveVisualIndex] = useState(0);
 
@@ -49,12 +49,15 @@ export default function StickySection({ title, text, visuals }) {
                 <div className="md:w-1/2 h-full flex items-center justify-center p-8 md:p-16">
                     <div className="max-w-xl">
                         <h2 className="text-4xl md:text-5xl font-bold mb-8">{title}</h2>
+                        <h3 className="text-xl md:text-2xl font-light mb-8">{subtitle}</h3>
                         <p className="text-xl text-blue-100 leading-relaxed mb-8">
                             {text}
                         </p>
-                        <div className="text-sm font-mono text-blue-400 border border-blue-400/30 inline-block px-3 py-1 rounded-full">
-                            {activeVisualIndex + 1}/{visuals.length}
-                        </div>
+                        {followText && (
+                            <p className="text-xl font-bold text-blue-100 leading-relaxed mb-8">
+                                {followText}
+                            </p>
+                        )}
                     </div>
                 </div>
 

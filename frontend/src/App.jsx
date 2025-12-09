@@ -10,28 +10,12 @@ import { useState, useEffect } from 'react';
 
 // --- DATA CONFIGURATION ---
 
-const section1Visuals = [
-  { id: 101, type: 'flag', color: 'bg-blue-800', label: 'Demographic A' },
-  { id: 102, type: 'chart', color: 'bg-indigo-800', label: 'Demographic B' },
-  { id: 103, type: 'people', color: 'bg-slate-800', label: 'Demographic C' },
-  { id: 104, type: 'alert', color: 'bg-red-900', label: 'Demographic D' },
-  { id: 105, type: 'globe', color: 'bg-teal-800', label: 'Demographic E' },
-];
-
-const section2Visuals = [
-  { id: 201, type: 'chart', color: 'bg-emerald-800', label: 'Trend 2015' },
-  { id: 202, type: 'scale', color: 'bg-cyan-800', label: 'Trend 2017' },
-  { id: 203, type: 'people', color: 'bg-sky-800', label: 'Trend 2019' },
-  { id: 204, type: 'activity', color: 'bg-violet-800', label: 'Trend 2021' },
-  { id: 205, type: 'flag', color: 'bg-fuchsia-800', label: 'Trend 2023' },
-];
-
 const originalSteps = [
   {
     id: 0,
     title: "The Initial Question",
-    content: "Is there a direct correlation between immigration flows and crime rates in the European Union? Or is this narrative merely a political tool used to polarize voters?",
-    visualType: "flag",
+    content: "Our initial question was whether there is a correlation between immigration flows and crime rates in the European Union. The first step was to look at the raw data, which at first glance suggested no correlation.",
+    visualType: "question",
     visualColor: "bg-blue-800"
   },
   {
@@ -53,6 +37,9 @@ const originalSteps = [
 export default function App() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [crimeVisuals, setCrimeVisuals] = useState([]);
+  const [immigrationVisuals, setImmigrationVisuals] = useState([]);
+  const [storySteps, setStorySteps] = useState(originalSteps);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,9 +56,7 @@ export default function App() {
         }));
 
         // 2. Strict Filtering: Must have data for year 2018 with valid metrics
-        // If 2018 exists and is valid, we keep the country (and all its available years)
         const grouped = {};
-
         capitalized.forEach(d => {
           if (!grouped[d.country_iso3_id]) grouped[d.country_iso3_id] = [];
           grouped[d.country_iso3_id].push(d);
@@ -80,19 +65,73 @@ export default function App() {
         const filteredData = [];
         Object.values(grouped).forEach(countryRecords => {
           const data2018 = countryRecords.find(r => r.year === 2018);
-
-          // Check if 2018 exists and has valid values
-          const hasValid2018 = data2018 &&
-            data2018.convicts_per_100000 !== null &&
-            data2018.immigration_per_100000 !== null;
-
-          if (hasValid2018) {
+          if (data2018 && data2018.convicts_per_100000 !== null && data2018.immigration_per_100000 !== null) {
             filteredData.push(...countryRecords);
           }
         });
 
         setData(filteredData);
+
+        // --- Calculate Trends for Sticky Sections ---
+        const years = [2018, 2019, 2020, 2021, 2022];
+
+        // Helper to get annual average
+        const getAnnualAvg = (dataSet, metric) => {
+          return years.map(year => {
+            const yearRecords = dataSet.filter(d => d.year === year);
+            if (yearRecords.length === 0) return { year, value: 0 };
+            const sum = yearRecords.reduce((acc, r) => acc + (r[metric] || 0), 0);
+            return { year, value: Math.round(sum / yearRecords.length) };
+          });
+        };
+
+        const crimeTrend = getAnnualAvg(filteredData, 'convicts_per_100000');
+        const immTrend = getAnnualAvg(filteredData, 'immigration_per_100000');
+
+        const maxCrime = 1000;
+        const maxImm = 2000;
+
+        // Generate Progressive Steps
+        const cVisuals = years.map((year, i) => ({
+          id: `crime-${year}`,
+          type: 'trend',
+          label: 'Average EU Crime Rate',
+          data: crimeTrend.slice(0, i + 1),
+          chartColor: '#ef4444', // Red
+          domainMax: maxCrime
+        }));
+
+        const iVisuals = years.map((year, i) => ({
+          id: `imm-${year}`,
+          type: 'trend',
+          label: 'Average EU Immigration Rate',
+          data: immTrend.slice(0, i + 1),
+          chartColor: '#10b981', // Emerald
+          domainMax: maxImm
+        }));
+
+        setCrimeVisuals(cVisuals);
+        setImmigrationVisuals(iVisuals);
+
+        // --- Comparison Data for Story Section ---
+        const comparisonData = years.map(year => {
+          const crimeVal = crimeTrend.find(c => c.year === year)?.value || 0;
+          const immVal = immTrend.find(i => i.year === year)?.value || 0;
+          return { year, crime: crimeVal, immigration: immVal };
+        });
+
+        // Update steps with dynamic data
+        const newSteps = [...originalSteps];
+        newSteps[0] = {
+          ...newSteps[0],
+          visualType: 'comparison',
+          title: 'Crime vs Immigration', // Override title if needed or keep "The Initial Question"
+          data: comparisonData
+        };
+
+        setStorySteps(newSteps);
         setLoading(false);
+
       } catch (error) {
         console.error('Error fetching data:', error);
         setLoading(false);
@@ -111,18 +150,22 @@ export default function App() {
       <Hero rawData={data} loading={loading} />
 
       <StickySection
-        title="Crime in the EU - 2018 to 2022"
-        text="As we delve into the data, we must first understand the landscape. This section illustrates five key demographics across the EU. Keep scrolling to see how the visual representation evolves while this text remains your constant guide through the initial statistics."
-        visuals={section1Visuals}
+        title="Crime in the EU"
+        subtitle="2018 to 2022"
+        text="Despite popular beliefs, crime in the European Union has been decreasing steadily over the years. The average EU crime rate has dropped by about 40% since 2018."
+        followText="Is less Immigration the reason for this positive development?"
+        visuals={crimeVisuals.length > 0 ? crimeVisuals : [{ id: 'loading', type: 'default', label: 'Loading Data...' }]}
       />
 
       <StickySection
-        title="Immigration in the EU - 2018 to 2022"
-        text="Moving deeper into the analysis, we observe specific trends over the last decade. Notice how the visuals shift to represent different time periods and intensity of migration flows, while we maintain our focus on the overarching narrative of stability versus volatility."
-        visuals={section2Visuals}
+        title="Immigration in the EU"
+        subtitle="2018 to 2022"
+        text="The average EU immigration rate has neither increased nor decreased, while 2022 saw a strong increase that may or may not be representative of the long-term trend."
+        followText="Does this mean Crime and Immigration are unrelated?"
+        visuals={immigrationVisuals.length > 0 ? immigrationVisuals : [{ id: 'loading', type: 'default', label: 'Loading Data...' }]}
       />
 
-      <StorySection steps={originalSteps} />
+      <StorySection steps={storySteps} />
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         <DataGraph rawData={data} loading={loading} />
