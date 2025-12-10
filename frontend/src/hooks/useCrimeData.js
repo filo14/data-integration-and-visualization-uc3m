@@ -19,7 +19,7 @@ export default function useCrimeData() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/full-data');
+                const response = await fetch('http://localhost:8000/api/eu-data');
                 const rawData = await response.json();
 
                 const processed = rawData

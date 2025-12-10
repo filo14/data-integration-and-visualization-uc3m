@@ -38,7 +38,7 @@ export default function App() {
         id: 2,
         visualType: 'top-countries',
         title: 'Top 5 Countries by Crime',
-        content: 'Taking a look at the countries with the highest crime rates, we can see that immigration rates are not necessarily high in these countries compared to the EU average, with the small country Luxembourg being the only outlier. But what about the countries with the highest immigration rates?',
+        content: 'Taking a look at the countries with the highest crime rates, we can see that immigration rates are not necessarily high in these countries compared to the EU average. But what about the countries with the highest immigration rates?',
         label: 'Top 5 by Crime Rate',
         data: storyData.topCrime,
         referenceLine: {
@@ -51,7 +51,7 @@ export default function App() {
         id: 3,
         visualType: 'top-countries',
         title: 'Top 5 Countries by Immigration',
-        content: 'The countries with the highest immigration rates do not consistently feature the highest crime rates, further challenging the direct correlation hypothesis. Again Luxembourg is the only outlier. Do the maths confirm this?',
+        content: 'The countries with the highest immigration rates do not consistently feature the highest crime rates, further challenging the direct correlation hypothesis. The small country Luxembourg is the only outlier. Do the maths confirm or reject the direct correlation hypothesis?',
         label: 'Top 5 by Immigration Rate',
         data: storyData.topImmigration,
         referenceLine: {

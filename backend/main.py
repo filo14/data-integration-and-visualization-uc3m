@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import get_db_connection
+from countrygroups import EUROPEAN_UNION
 
 app = FastAPI(title="Data Visualization API")
 
@@ -51,6 +52,46 @@ def get_full_data():
             cur.execute(query)
             data = cur.fetchall()
             return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+@app.get("/api/eu-data")
+def get_eu_data():
+    print("DEBUG IN MAIN: Entering get_eu_data")
+    conn = get_db_connection()
+    if not conn:
+         raise HTTPException(status_code=500, detail="Database connection failed")
+    
+    try:
+        with conn.cursor() as cur:
+            # We fetch everything and filter in Python because the query is complex with joins
+            # and executing "IN (...)" with many parameters is also fine but this is simpler for now
+            # reusing the same query logic as get_full_data to keep consistency
+            query = """
+                SELECT 
+                    c.country_iso3_id,
+                    c.country_name,
+                    p.year_id as year,
+                    p.population,
+                    cr.convicts_per_100000,
+                    i.immigration_per_100000
+                FROM country c
+                JOIN population p ON c.country_iso3_id = p.country_iso3_id
+                LEFT JOIN crime cr ON c.country_iso3_id = cr.country_iso3_id AND p.year_id = cr.year_id
+                LEFT JOIN immigration i ON c.country_iso3_id = i.country_iso3_id AND p.year_id = i.year_id
+                ORDER BY c.country_name, p.year_id;
+            """
+            cur.execute(query)
+            data = cur.fetchall()
+            
+            # Filter for EU countries
+            eu_codes = set(EUROPEAN_UNION)
+            
+            filtered_data = [row for row in data if row['country_iso3_id'] in eu_codes]
+            
+            return filtered_data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
