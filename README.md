@@ -4,24 +4,21 @@
 
 - [Python3](https://www.python.org/downloads/)
 - [Docker](https://docs.docker.com/get-started/get-docker/)
+- [Node.js](https://nodejs.org/en/download/)
 
 ## Running the project
 
-To run the full ETL process use the following command.
-```bash
-make etl
-```
-
-## Makefile commands
-
-- Create Python venv
-
+-   Execute ETL and start database 
     ```bash
-    make venv
+    make etl
     ```
 
-- Create Database
-
+-   Start backend server
     ```bash
-    make db
+    make backend
+    ```
+
+-   Start frontend server
+    ```bash
+    make frontend
     ```

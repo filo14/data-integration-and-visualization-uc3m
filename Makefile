@@ -4,7 +4,7 @@ venv:
 	@echo "--- Setting up python venv ---"
 	python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
-db:
+db: venv
 	@echo "--- Setting up database ---"
 	cd ./database && make up schema
 
@@ -16,15 +16,15 @@ delete:
 	@echo "--- Deleting & resetting database ---"
 	cd ./database && make down
 
-backup:
+backup: venv db
 	@echo "--- Creating database backup ---"
 	cd ./database && make backup
 
-connect:
+connect: venv db
 	@echo "--- Connecting to database ---"
 	cd ./database && make connect
 
-backend: venv
+backend: venv db
 	@echo "--- Starting backend server ---"
 	cd backend && ../.venv/bin/uvicorn main:app --reload
 
