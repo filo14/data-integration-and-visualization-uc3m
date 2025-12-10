@@ -24,12 +24,12 @@ export default function StorySection({ steps }) {
         <div className="relative max-w-7xl mx-auto px-4 py-32">
             <div className="flex flex-col md:flex-row-reverse">
 
-                {/* VISUAL COLUMN (Right) */}
+                {/* Visual Column */}
                 <div className="md:w-1/2 sticky top-0 h-screen flex items-center justify-center p-8">
                     <VisualElement visual={getActiveVisual()} />
                 </div>
 
-                {/* SCROLLING TEXT COLUMN (Left) */}
+                {/* Text Column */}
                 <div className="md:w-1/2">
                     {steps.map((step, index) => (
                         <ScrollStep

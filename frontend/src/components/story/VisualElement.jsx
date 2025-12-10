@@ -43,7 +43,7 @@ export default function VisualElement({ visual }) {
                                 </div>
                             </div>
                             {/* Crime Stat */}
-                            <div className="flex items-center justify-between border-b border-white/10 pb-6">
+                            <div className="flex items-center justify-between pb-6">
                                 <div>
                                     <h4 className="text-xl text-blue-200 mb-1">Average Crime Rate</h4>
                                     <p className="text-sm text-blue-300/60">Per 100k inhabitants</p>

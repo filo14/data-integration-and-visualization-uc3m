@@ -24,7 +24,7 @@ export default function Hero() {
                     <img
                         src={euMap}
                         alt="Flag Map of the European Union"
-                        className="w-full max-w-lg h-auto drop-shadow-[0_0_60px_rgba(0,0,0,0.6)] opacity-95 hover:opacity-100 transition-opacity duration-700"
+                        className="w-full max-w-lg h-auto drop-shadow-[0_0_18px_rgba(0,0,0,0.9)] opacity-95 hover:opacity-100 transition-opacity duration-700"
                     />
                 </div>
             </div>

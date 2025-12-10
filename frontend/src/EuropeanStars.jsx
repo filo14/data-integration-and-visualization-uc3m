@@ -5,7 +5,6 @@ export default function EuropeanStars() {
     return (
         <div
             className="fixed top-0 right-0 z-0 pointer-events-none select-none"
-            aria-hidden="true"
         >
             <img
                 src={euStarsWithBackground}

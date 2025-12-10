@@ -7,8 +7,8 @@ export default function TopCountriesChart({ data, referenceLine }) {
         <div className="w-full h-full relative">
             {referenceLine && (
                 <div className="absolute top-0 right-0 p-2 bg-white/10 rounded-lg backdrop-blur-md border border-white/10 z-10 pointer-events-none">
-                    <p className="text-xs text-blue tracking-widest font-bold mb-1">{referenceLine.label}</p>
-                    <p className="text-xl font-bold text-white">
+                    <p className="text-xs text-blue-200 tracking-widest font-bold">{referenceLine.label}</p>
+                    <p className="text-2xl font-bold text-white">
                         {referenceLine.value}
                     </p>
                 </div>
