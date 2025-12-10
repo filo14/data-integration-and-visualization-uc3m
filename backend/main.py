@@ -59,7 +59,6 @@ def get_full_data():
 
 @app.get("/api/eu-data")
 def get_eu_data():
-    print("DEBUG IN MAIN: Entering get_eu_data")
     conn = get_db_connection()
     if not conn:
          raise HTTPException(status_code=500, detail="Database connection failed")
