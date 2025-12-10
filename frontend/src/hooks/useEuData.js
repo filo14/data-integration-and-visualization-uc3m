@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { formatCountryName, calculateAnnualTrends, getCountryAverages, calculateCorrelation } from '../utils/statistics';
+import { useState, useEffect, useCallback } from 'react';
+import { formatCountryName, calculateAnnualTrends, getCountryAverages, calculateCorrelation, transformDataForChart, transformDataForMap, getAvailableCountries } from '../utils/statistics';
 import { THEME } from '../config/theme';
 
 export default function useEuData() {
@@ -76,7 +76,28 @@ export default function useEuData() {
         loadData();
     }, []);
 
-    return { data, loading, crimeVisuals, immigrationVisuals, storyData };
+    const filterMapData = useCallback((year) => {
+        return transformDataForMap(data, year);
+    }, [data]);
+
+    const filterGraphData = useCallback((metric) => {
+        return transformDataForChart(data, metric);
+    }, [data]);
+
+    const filterAvailableCountries = useCallback((metric) => {
+        return getAvailableCountries(data, metric);
+    }, [data]);
+
+    return {
+        data,
+        loading,
+        crimeVisuals,
+        immigrationVisuals,
+        storyData,
+        filterMapData,
+        filterGraphData,
+        filterAvailableCountries
+    };
 }
 
 const createTrendVisuals = (trendData, label, color, maxDomain, metricName) => {

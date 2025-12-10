@@ -9,10 +9,19 @@ import Conclusion from './components/sections/Conclusion';
 import EuropeanStars from './EuropeanStars';
 import useEuData from './hooks/useEuData';
 import { THEME } from './config/theme';
-import { getAvailableCountries, transformDataForChart, transformDataForMap } from './utils/statistics';
+
 
 export default function App() {
-  const { data, loading, crimeVisuals, immigrationVisuals, storyData } = useEuData();
+  const {
+    data,
+    loading,
+    crimeVisuals,
+    immigrationVisuals,
+    storyData,
+    filterMapData,
+    filterGraphData,
+    filterAvailableCountries
+  } = useEuData();
   const [storySteps, setStorySteps] = useState([]);
 
 
@@ -21,16 +30,16 @@ export default function App() {
 
 
   const mapDisplayData = useMemo(() => {
-    return transformDataForMap(data, mapYear);
-  }, [data, mapYear]);
+    return filterMapData(mapYear);
+  }, [filterMapData, mapYear]);
 
   const graphData = useMemo(() => {
-    return transformDataForChart(data, graphMetric);
-  }, [data, graphMetric]);
+    return filterGraphData(graphMetric);
+  }, [filterGraphData, graphMetric]);
 
   const graphAvailableCountries = useMemo(() => {
-    return getAvailableCountries(data, graphMetric);
-  }, [data, graphMetric]);
+    return filterAvailableCountries(graphMetric);
+  }, [filterAvailableCountries, graphMetric]);
 
 
   useEffect(() => {
