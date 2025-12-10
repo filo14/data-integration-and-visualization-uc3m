@@ -20,7 +20,7 @@ export const calculateAnnualTrends = (data, metricKey) => {
             ? validValues.reduce((a, b) => a + b, 0) / validValues.length
             : 0;
 
-        return { year, value: Math.round(avg * 100) / 100 };
+        return { year, value: Math.round(avg) };
     });
 };
 
@@ -39,8 +39,8 @@ export const getCountryAverages = (data) => {
             name: name,
             country: name,
             iso3,
-            crime: Math.round(avgCrime * 100) / 100,
-            immigration: Math.round(avgImm * 100) / 100
+            crime: Math.round(avgCrime),
+            immigration: Math.round(avgImm)
         };
     });
 };

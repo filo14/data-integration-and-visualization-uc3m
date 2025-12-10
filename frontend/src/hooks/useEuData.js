@@ -23,7 +23,12 @@ export default function useEuData() {
                 const rawData = await response.json();
 
                 const processed = rawData
-                    .map(d => ({ ...d, country_name: formatCountryName(d.country_name) }))
+                    .map(d => ({
+                        ...d,
+                        country_name: formatCountryName(d.country_name),
+                        convicts_per_100000: d.convicts_per_100000 !== null ? Math.round(d.convicts_per_100000) : null,
+                        immigration_per_100000: d.immigration_per_100000 !== null ? Math.round(d.immigration_per_100000) : null
+                    }))
                     .filter(d =>
                         d.convicts_per_100000 !== null &&
                         d.immigration_per_100000 !== null &&
@@ -89,7 +94,6 @@ export default function useEuData() {
     }, [data]);
 
     return {
-        data,
         loading,
         crimeVisuals,
         immigrationVisuals,

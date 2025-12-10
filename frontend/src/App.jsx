@@ -13,7 +13,6 @@ import { THEME } from './config/theme';
 
 export default function App() {
   const {
-    data,
     loading,
     crimeVisuals,
     immigrationVisuals,
