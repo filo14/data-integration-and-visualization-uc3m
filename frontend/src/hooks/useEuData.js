@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { formatCountryName, calculateAnnualTrends, getCountryAverages, calculateCorrelation } from '../utils/statistics';
 import { THEME } from '../config/theme';
 
-export default function useCrimeData() {
+export default function useEuData() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [crimeVisuals, setCrimeVisuals] = useState([]);
@@ -32,14 +32,14 @@ export default function useCrimeData() {
 
                 setData(processed);
 
-                // Calculate Trends
+
                 const crimeTrend = calculateAnnualTrends(processed, 'convicts_per_100000');
                 const immTrend = calculateAnnualTrends(processed, 'immigration_per_100000');
 
                 setCrimeVisuals(createTrendVisuals(crimeTrend, 'Average EU Crime Rate per 100,000', THEME.colors.crime, 1000, 'Crime Rate'));
                 setImmigrationVisuals(createTrendVisuals(immTrend, 'Average EU Immigration Rate per 100,000', THEME.colors.immigration, 2000, 'Immigration Rate'));
 
-                // Prepare Story Data
+
                 const comparison = crimeTrend.map(c => ({
                     year: c.year,
                     crime: c.value,

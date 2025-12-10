@@ -1,37 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import Plot from 'react-plotly.js';
 import { THEME } from '../../config/theme';
 
-export default function DataMap({ rawData, loading }) {
-    const [year, setYear] = useState(2018);
-
-    const mapData = useMemo(() => {
-        if (!rawData || rawData.length === 0) return null;
-
-        const currentYearData = rawData.filter(d => d.year === year);
-
-        // Find max crime for color scaling (global max to keep scale consistent across years)
-        const maxCrime = Math.max(...rawData.map(d => d.convicts_per_100000 || 0));
-
-        return {
-            locations: currentYearData.map(d => d.country_iso3_id),
-            z: currentYearData.map(d => d.convicts_per_100000),
-            text: currentYearData.map(d => `<b style="font-size: 14px; color: white">${d.country_name}</b><br><span style="color: ${THEME.colors.text}">Immigration:</span> <b style="color: white">${d.immigration_per_100000}</b> per 100k<br><span style="color: ${THEME.colors.text}">Crime:</span> <b style="color: white">${d.convicts_per_100000}</b> per 100k`),
-            marker: {
-                size: currentYearData.map(d => (d.immigration_per_100000 || 0) / 15),
-                color: currentYearData.map(d => d.convicts_per_100000),
-                colorscale: [[0, '#ffffffff'], [1, '#ff0000ff']], // Red 400 to Red 900
-                cmin: 0,
-                cmax: maxCrime,
-                opacity: 0.9,
-                line: { color: 'rgba(255,255,255,0.8)', width: 1 },
-                sizemode: 'area'
-            }
-        };
-
-    }, [rawData, year]);
-
-    if (loading) return <div className="text-white text-center">Loading map...</div>;
+export default function DataMap({ mapData, year, setYear, loading }) {
 
     return (
         <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 shadow-2xl h-full flex flex-col">

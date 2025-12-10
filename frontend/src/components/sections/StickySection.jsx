@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import VisualElement from '../story/VisualElement';
 
 export default function StickySection({ title, subtitle, text, followText, visuals }) {
@@ -39,12 +39,12 @@ export default function StickySection({ title, subtitle, text, followText, visua
         <div ref={containerRef} className="relative" style={{ height: `${visuals.length * 100}vh` }}>
             <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden bg-primary-dark">
 
-                {/* LEFT: VISUALS (Changing) */}
+                {/* Changing Visuals */}
                 <div className="md:w-1/2 h-full flex items-center justify-center p-8 bg-black/20">
                     <VisualElement visual={visuals[activeVisualIndex]} />
                 </div>
 
-                {/* RIGHT: TEXT (Static) */}
+                {/* Static Text */}
                 <div className="md:w-1/2 h-full flex items-center justify-center p-8 md:p-16">
                     <div className="max-w-xl">
                         <h2 className="text-4xl md:text-5xl font-bold mb-8">{title}</h2>

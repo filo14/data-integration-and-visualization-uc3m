@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import VisualElement from '../story/VisualElement';
 import ScrollStep from '../story/ScrollStep';
 
@@ -28,7 +28,6 @@ export default function StorySection({ steps }) {
                 <div className="md:w-1/2 sticky top-0 h-screen flex items-center justify-center p-8">
                     <VisualElement visual={getActiveVisual()} />
                 </div>
-
                 {/* Text Column */}
                 <div className="md:w-1/2">
                     {steps.map((step, index) => (

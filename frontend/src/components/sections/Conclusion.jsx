@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Conclusion() {
     return (
         <div className="py-24 px-6 border-t border-white/10 bg-primary-dark relative z-10">

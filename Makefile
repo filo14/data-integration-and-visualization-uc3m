@@ -8,7 +8,7 @@ db: venv
 	@echo "--- Setting up database ---"
 	cd ./database && make up schema
 
-etl: venv db
+etl: db
 	@echo "--- Running ETL ---"
 	.venv/bin/python crime_immigration_etl.py
 
@@ -16,15 +16,15 @@ delete:
 	@echo "--- Deleting & resetting database ---"
 	cd ./database && make down
 
-backup: venv db
+backup: db
 	@echo "--- Creating database backup ---"
 	cd ./database && make backup
 
-connect: venv db
+connect: db
 	@echo "--- Connecting to database ---"
 	cd ./database && make connect
 
-backend: venv db
+backend: etl
 	@echo "--- Starting backend server ---"
 	cd backend && ../.venv/bin/uvicorn main:app --reload
 

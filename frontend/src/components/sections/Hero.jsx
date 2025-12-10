@@ -1,4 +1,3 @@
-import React from 'react';
 import euMap from '../../assets/Flag_map_of_the_European_Union.png';
 
 export default function Hero() {

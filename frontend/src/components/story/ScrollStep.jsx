@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 export default function ScrollStep({ step, index, setActiveStep }) {
     const ref = useRef(null);

@@ -1,22 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Hero from './components/sections/Hero';
 import StorySection from './components/sections/StorySection';
 import StickySection from './components/sections/StickySection';
 import DataMap from './components/charts/DataMap';
 import DataGraph from './components/charts/DataGraph';
+import ChartCard from './components/common/ChartCard';
 import Conclusion from './components/sections/Conclusion';
 import EuropeanStars from './EuropeanStars';
-import useCrimeData from './hooks/useCrimeData';
+import useEuData from './hooks/useEuData';
 import { THEME } from './config/theme';
+import { getAvailableCountries, transformDataForChart, transformDataForMap } from './utils/statistics';
 
 export default function App() {
-  const { data, loading, crimeVisuals, immigrationVisuals, storyData } = useCrimeData();
+  const { data, loading, crimeVisuals, immigrationVisuals, storyData } = useEuData();
   const [storySteps, setStorySteps] = useState([]);
+
+
+  const [mapYear, setMapYear] = useState(2018);
+  const [graphMetric, setGraphMetric] = useState('convicts_per_100000');
+
+
+  const mapDisplayData = useMemo(() => {
+    return transformDataForMap(data, mapYear);
+  }, [data, mapYear]);
+
+  const graphData = useMemo(() => {
+    return transformDataForChart(data, graphMetric);
+  }, [data, graphMetric]);
+
+  const graphAvailableCountries = useMemo(() => {
+    return getAvailableCountries(data, graphMetric);
+  }, [data, graphMetric]);
+
 
   useEffect(() => {
     if (loading) return;
 
-    // Construct the narrative steps with fetched data
+
     const newSteps = [
       {
         id: 0,
@@ -102,7 +122,7 @@ export default function App() {
 
       <Conclusion />
 
-      {/* DATA HEADER */}
+
       <div className="max-w-7xl mx-auto px-4 pt-20 pb-8 text-center mt-50">
         <h2 className="text-4xl font-bold text-white mb-4">Explore the Full Dataset</h2>
         <p className="text-blue-200 max-w-2xl mx-auto">
@@ -112,10 +132,23 @@ export default function App() {
 
       <div className="max-w-[1600px] mx-auto px-4 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="w-full">
-          <DataMap rawData={data} loading={loading} />
+          <DataMap
+            mapData={mapDisplayData}
+            year={mapYear}
+            setYear={setMapYear}
+            loading={loading}
+          />
         </div>
-        <div className="w-full">
-          <DataGraph rawData={data} loading={loading} />
+        <div className="w-full h-[600px]">
+          <ChartCard title="Crime & Immigration per Country" className="h-full">
+            <DataGraph
+              data={graphData}
+              availableCountries={graphAvailableCountries}
+              metric={graphMetric}
+              setMetric={setGraphMetric}
+              loading={loading}
+            />
+          </ChartCard>
         </div>
       </div>
 

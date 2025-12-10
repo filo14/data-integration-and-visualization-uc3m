@@ -1,4 +1,3 @@
-import React from 'react';
 import { glassCardClasses } from '../../config/theme';
 
 export default function ChartCard({ title, children, className = "" }) {
