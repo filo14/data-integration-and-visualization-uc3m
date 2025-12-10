@@ -1,4 +1,4 @@
-.PHONY: venv db backend frontend
+.PHONY: venv db etl delete backup connect backend frontend install_frontend plots
 
 venv:
 	@echo "--- Setting up python venv ---"
@@ -28,7 +28,11 @@ backend: venv
 	@echo "--- Starting backend server ---"
 	cd backend && ../.venv/bin/uvicorn main:app --reload
 
-frontend:
+install_frontend:
+	@echo "--- Installing frontend dependencies ---"
+	cd frontend && npm install
+
+frontend: install_frontend
 	@echo "--- Starting frontend server ---"
 	cd frontend && npm run dev
 
